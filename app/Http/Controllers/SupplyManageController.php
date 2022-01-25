@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use PDF;
-use Auth;
-use Session;
-use Carbon\Carbon;
 use App\Acces;
 use App\Supply;
 use App\Market;
 use App\Product;
 use App\Activity;
+use Carbon\Carbon;
 use App\Supply_system;
-use App\Imports\SupplyImport;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use App\Imports\SupplyImport;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplyManageController extends Controller
 {
@@ -23,25 +22,25 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
-        if($check_access->kelola_barang == 1){
+            ->first();
+        if ($check_access->kelola_barang == 1) {
             $supply_system = Supply_system::first();
-            if($id == 'active'){
+            if ($id == 'active') {
                 $supply_system->status = true;
                 $supply_system->save();
 
-                Session::flash('supply_system_status', 'Sistem berhasil diaktifkan');
+                session()->flash('supply_system_status', 'Sistem berhasil diaktifkan');
 
                 return back();
-            }else{
+            } else {
                 $supply_system->status = false;
                 $supply_system->save();
 
-                Session::flash('supply_system_status', 'Sistem berhasil dinonaktifkan');
+                session()->flash('supply_system_status', 'Sistem berhasil dinonaktifkan');
 
                 return back();
             }
-        }else{
+        } else {
             return back();
         }
     }
@@ -51,10 +50,13 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-            $supplies = Supply::all();
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            $supplies = Supply::with(['supplier', 'product'])
+                ->whereHas('supplier')
+                ->whereHas('product')
+                ->get();
             $array = array();
             foreach ($supplies as $no => $supply) {
                 array_push($array, $supplies[$no]->created_at->toDateString());
@@ -63,7 +65,7 @@ class SupplyManageController extends Controller
             rsort($dates);
 
             return view('manage_product.supply_product.supply', compact('dates'));
-        }else{
+        } else {
             return back();
         }
     }
@@ -72,15 +74,13 @@ class SupplyManageController extends Controller
     public function statisticsSupply()
     {
         $id_account = Auth::id();
-        $check_access = Acces::where('user', $id_account)
-        ->first();
+        $check_access = Acces::where('user', $id_account)->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-        	$products = Product::all()
-        	->sortBy('kode_barang');
-        	
-        	return view('manage_product.supply_product.statistics_supply', compact('products'));
-        }else{
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            $products = Product::all()->sortBy('kode_barang');
+
+            return view('manage_product.supply_product.statistics_supply', compact('products'));
+        } else {
             return back();
         }
     }
@@ -90,14 +90,14 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
             $products = Product::all()
-            ->sortBy('kode_barang');
+                ->sortBy('kode_barang');
 
             return view('manage_product.supply_product.new_supply', compact('products'));
-        }else{
+        } else {
             return back();
         }
     }
@@ -107,18 +107,18 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
             $check_product = Product::where('kode_barang', $id)
-            ->count();
+                ->count();
 
-            if($check_product != 0){
+            if ($check_product != 0) {
                 echo "sukses";
-            }else{
+            } else {
                 echo "gagal";
             }
-        }else{
+        } else {
             return back();
         }
     }
@@ -128,14 +128,14 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
-        $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-            $product = Product::where('kode_barang', $id)
             ->first();
+        $supply_system = Supply_system::first();
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            $product = Product::where('kode_barang', $id)
+                ->first();
 
             return response()->json(['product' => $product]);
-        }else{
+        } else {
             return back();
         }
     }
@@ -145,28 +145,28 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-        	$product = Product::where('kode_barang', '=', $id)
-        	->first();
-        	$supplies = Supply::where('kode_barang', '=', $id)
-            ->select('supplies.*')
-            ->orderBy('created_at', 'ASC')
-            ->get();
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            $product = Product::where('kode_barang', '=', $id)
+                ->first();
+            $supplies = Supply::where('product_id', '=', $product->id)
+                ->select('supplies.*')
+                ->orderBy('created_at', 'ASC')
+                ->get();
             $dates = array();
             $ammounts = array();
             foreach ($supplies as $no => $supply) {
-            	$dates[$no] = date('d M, Y', strtotime($supply->created_at));
-            	$ammounts[$no] = $supply->harga_beli;
+                $dates[$no] = date('d M, Y', strtotime($supply->created_at));
+                $ammounts[$no] = $supply->harga_beli;
             }
 
-        	return response()->json([
-        		'product' => $product,
-        		'dates' => $dates,
-        		'ammounts' => $ammounts
-        	]);
-        }else{
+            return response()->json([
+                'product' => $product,
+                'dates' => $dates,
+                'ammounts' => $ammounts
+            ]);
+        } else {
             return back();
         }
     }
@@ -176,16 +176,16 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-        	$total_user = Supply::select('id_pemasok')
-            ->where('kode_barang', '=', $id)
-            ->distinct()
-            ->get();
-
-            echo $total_user->count() . ' Pemasok';
-        }else{
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            echo Supply::select('supplier_id')
+                ->whereHas('product', function ($product) use ($id) {
+                    return $product->where("kode_barang", $id);
+                })
+                ->distinct()
+                ->count() . ' Pemasok';
+        } else {
             return back();
         }
     }
@@ -195,16 +195,20 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-        	$supplies = Supply::where('kode_barang', '=', $id)
-            ->select('supplies.*')
-            ->orderBy('created_at', 'DESC')
-            ->get();
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            $supplies = Supply::whereHas('product', function ($product) use ($id) {
+                return $product->where('kode_barang', $id);
+            })
+                ->with("supplier")
+                ->whereHas("supplier")
+                ->select('supplies.*')
+                ->orderBy('created_at', 'DESC')
+                ->get();
 
             return view('manage_product.supply_product.statistics_table', compact('supplies'));
-        }else{
+        } else {
             return back();
         }
     }
@@ -214,27 +218,29 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
             $jumlah_data = 0;
             foreach ($req->kode_barang_supply as $no => $kode_barang) {
-                $product_status = Product::where('kode_barang', $kode_barang)
-                ->first();
-                if($product_status->stok == 0){
-                    $product_status->keterangan = 'Tersedia';
-                    $product_status->save();
+                $product = Product::where('kode_barang', $kode_barang)
+                    ->first();
+                $product->stok += $req->jumlah_supply[$no];
+
+                if ($product->stok > 0) {
+                    $product->keterangan = 'Tersedia';
                 }
+                $product->save();
 
                 $supply = new Supply;
-                $supply->kode_barang = $kode_barang;
-                $product = Product::where('kode_barang', $kode_barang)
-                ->first();
-                $supply->nama_barang = $product->nama_barang;
+                // $supply->kode_barang = $kode_barang;
+
+                // $supply->nama_barang = $product->nama_barang;
                 $supply->jumlah = $req->jumlah_supply[$no];
                 $supply->harga_beli = $req->harga_beli_supply[$no];
-                $supply->id_pemasok = Auth::id();
-                $supply->pemasok = Auth::user()->nama;
+                $supply->supplier_id = $req->supplier_id[$no];
+                $supply->product_id = $product->id;
+                $supply->ppn = $req->ppn[$no] ?? 0;
                 $supply->save();
                 $jumlah_data += 1;
             }
@@ -246,10 +252,10 @@ class SupplyManageController extends Controller
             $activity->jumlah = $jumlah_data;
             $activity->save();
 
-            Session::flash('create_success', 'Barang berhasil dipasok');
+            session()->flash('create_success', 'Barang berhasil dipasok');
 
             return redirect('/supply');
-        }else{
+        } else {
             return back();
         }
     }
@@ -259,17 +265,17 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
-            try{
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
+            try {
                 $file = $req->file('excel_file');
-                $nama_file = rand().$file->getClientOriginalName();
+                $nama_file = rand() . $file->getClientOriginalName();
                 $file->move('excel_file', $nama_file);
                 $import = new SupplyImport;
-                Excel::import($import, public_path('/excel_file/'.$nama_file));
+                Excel::import($import, public_path('/excel_file/' . $nama_file));
 
-                $array = (new SupplyImport)->toArray(public_path('/excel_file/'.$nama_file));
+                $array = (new SupplyImport)->toArray(public_path('/excel_file/' . $nama_file));
                 $jumlah_data = count($array[0]);
 
                 $activity = new Activity;
@@ -279,15 +285,15 @@ class SupplyManageController extends Controller
                 $activity->jumlah = $jumlah_data;
                 $activity->save();
 
-                Session::flash('import_success', 'Data barang berhasil diimport');
-            }catch(\Exception $ex){
-                Session::flash('import_failed', 'Cek kembali terdapat data kosong, stok barang kosong atau kode barang yang tidak tersedia');
+                session()->flash('import_success', 'Data barang berhasil diimport');
+            } catch (\Exception $ex) {
+                session()->flash('import_failed', 'Cek kembali terdapat data kosong, stok barang kosong atau kode barang yang tidak tersedia');
 
                 return back();
             }
 
             return redirect('/supply');
-        }else{
+        } else {
             return back();
         }
     }
@@ -297,17 +303,17 @@ class SupplyManageController extends Controller
     {
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
-        ->first();
+            ->first();
         $supply_system = Supply_system::first();
-        if($check_access->kelola_barang == 1 && $supply_system->status == true){
+        if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
             $jenis_laporan = $req->jns_laporan;
             $current_time = Carbon::now()->isoFormat('Y-MM-DD') . ' 23:59:59';
-            if($jenis_laporan == 'period'){
-                if($req->period == 'minggu'){
+            if ($jenis_laporan == 'period') {
+                if ($req->period == 'minggu') {
                     $last_time = Carbon::now()->subWeeks($req->time)->isoFormat('Y-MM-DD') . ' 00:00:00';
                     $supplies = Supply::select('supplies.*')
-                    ->whereBetween('created_at', array($last_time, $current_time))
-                    ->get();
+                        ->whereBetween('created_at', array($last_time, $current_time))
+                        ->get();
                     $array = array();
                     foreach ($supplies as $no => $supply) {
                         array_push($array, $supplies[$no]->created_at->toDateString());
@@ -316,11 +322,11 @@ class SupplyManageController extends Controller
                     rsort($dates);
                     $tgl_awal = $last_time;
                     $tgl_akhir = $current_time;
-                }elseif($req->period == 'bulan'){
+                } elseif ($req->period == 'bulan') {
                     $last_time = Carbon::now()->subMonths($req->time)->isoFormat('Y-MM-DD') . ' 00:00:00';
                     $supplies = Supply::select('supplies.*')
-                    ->whereBetween('created_at', array($last_time, $current_time))
-                    ->get();
+                        ->whereBetween('created_at', array($last_time, $current_time))
+                        ->get();
                     $array = array();
                     foreach ($supplies as $no => $supply) {
                         array_push($array, $supplies[$no]->created_at->toDateString());
@@ -329,11 +335,11 @@ class SupplyManageController extends Controller
                     rsort($dates);
                     $tgl_awal = $last_time;
                     $tgl_akhir = $current_time;
-                }elseif($req->period == 'tahun'){
+                } elseif ($req->period == 'tahun') {
                     $last_time = Carbon::now()->subYears($req->time)->isoFormat('Y-MM-DD') . ' 00:00:00';
                     $supplies = Supply::select('supplies.*')
-                    ->whereBetween('created_at', array($last_time, $current_time))
-                    ->get();
+                        ->whereBetween('created_at', array($last_time, $current_time))
+                        ->get();
                     $array = array();
                     foreach ($supplies as $no => $supply) {
                         array_push($array, $supplies[$no]->created_at->toDateString());
@@ -343,14 +349,14 @@ class SupplyManageController extends Controller
                     $tgl_awal = $last_time;
                     $tgl_akhir = $current_time;
                 }
-            }else{
+            } else {
                 $start_date = $req->tgl_awal_export;
                 $end_date = $req->tgl_akhir_export;
-                $start_date2 = $start_date[6].$start_date[7].$start_date[8].$start_date[9].'-'.$start_date[3].$start_date[4].'-'.$start_date[0].$start_date[1].' 00:00:00';
-                $end_date2 = $end_date[6].$end_date[7].$end_date[8].$end_date[9].'-'.$end_date[3].$end_date[4].'-'.$end_date[0].$end_date[1].' 23:59:59';
+                $start_date2 = $start_date[6] . $start_date[7] . $start_date[8] . $start_date[9] . '-' . $start_date[3] . $start_date[4] . '-' . $start_date[0] . $start_date[1] . ' 00:00:00';
+                $end_date2 = $end_date[6] . $end_date[7] . $end_date[8] . $end_date[9] . '-' . $end_date[3] . $end_date[4] . '-' . $end_date[0] . $end_date[1] . ' 23:59:59';
                 $supplies = Supply::select('supplies.*')
-                ->whereBetween('created_at', array($start_date2, $end_date2))
-                ->get();
+                    ->whereBetween('created_at', array($start_date2, $end_date2))
+                    ->get();
                 $array = array();
                 foreach ($supplies as $no => $supply) {
                     array_push($array, $supplies[$no]->created_at->toDateString());
@@ -364,7 +370,7 @@ class SupplyManageController extends Controller
 
             $pdf = PDF::loadview('manage_product.supply_product.export_report_supply', compact('dates', 'tgl_awal', 'tgl_akhir', 'market'));
             return $pdf->stream();
-        }else{
+        } else {
             return back();
         }
     }

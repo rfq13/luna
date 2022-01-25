@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+	return view('welcome');
 });
 
 Route::get('/login', 'AuthManageController@viewLogin')->name('login');
 Route::post('/verify_login', 'AuthManageController@verifyLogin');
 Route::post('/first_account', 'UserManageController@firstAccount');
 
-Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function(){
+Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 	Route::get('/logout', 'AuthManageController@logoutProcess');
 	Route::get('/dashboard', 'ViewManageController@viewDashboard');
 	Route::get('/dashboard/chart/{filter}', 'ViewManageController@filterChartDashboard');
@@ -49,27 +49,43 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function(){
 	Route::get('/access/sidebar', 'AccessManageController@sidebarRefresh');
 	// ------------------------- Kelola Barang -------------------------
 	// > Barang
-	Route::get('/product', 'ProductManageController@viewProduct');
-	Route::get('/product/new', 'ProductManageController@viewNewProduct');
-	Route::post('/product/create', 'ProductManageController@createProduct');
-	Route::post('/product/import', 'ProductManageController@importProduct');
-	Route::get('/product/edit/{id}', 'ProductManageController@editProduct');
-	Route::post('/product/update', 'ProductManageController@updateProduct');
-	Route::get('/product/delete/{id}', 'ProductManageController@deleteProduct');
-	Route::get('/product/filter/{id}', 'ProductManageController@filterTable');
+	Route::group(["prefix" => "product"], function () {
+		Route::get('/', 'ProductManageController@viewProduct');
+		Route::get('/new', 'ProductManageController@viewNewProduct');
+		Route::post('/create', 'ProductManageController@createProduct');
+		Route::post('/import', 'ProductManageController@importProduct');
+		Route::get('/edit/{id}', 'ProductManageController@editProduct');
+		Route::post('/update', 'ProductManageController@updateProduct');
+		Route::get('/delete/{id}', 'ProductManageController@deleteProduct');
+		Route::get('/filter/{id}', 'ProductManageController@filterTable');
+		Route::get('/settings', 'ProductManageController@settings')->name("product.settings");
+		Route::post('/unit', 'ProductManageController@set_unit')->name("product.unit.set");
+		Route::get('/unit', 'ProductManageController@get_unit')->name("product.unit.get");
+	});
 	// > Pasok
-	Route::get('/supply/system/{id}', 'SupplyManageController@supplySystem');
-	Route::get('/supply', 'SupplyManageController@viewSupply');
-	Route::get('/supply/new', 'SupplyManageController@viewNewSupply');
-	Route::get('/supply/check/{id}', 'SupplyManageController@checkSupplyCheck');
-	Route::get('/supply/data/{id}', 'SupplyManageController@checkSupplyData');
-	Route::post('/supply/create', 'SupplyManageController@createSupply');
-	Route::post('/supply/import', 'SupplyManageController@importSupply');
-	Route::get('/supply/statistics', 'SupplyManageController@statisticsSupply');
-	Route::get('/supply/statistics/product/{id}', 'SupplyManageController@statisticsProduct');
-	Route::get('/supply/statistics/users/{id}', 'SupplyManageController@statisticsUsers');
-	Route::get('/supply/statistics/table/{id}', 'SupplyManageController@statisticsTable');
-	Route::post('/supply/statistics/export', 'SupplyManageController@exportSupply');
+	Route::group(["prefix" => "supply"], function () {
+		Route::get('/system/{id}', 'SupplyManageController@supplySystem');
+		Route::get('/new', 'SupplyManageController@viewNewSupply');
+		Route::get('/check/{id}', 'SupplyManageController@checkSupplyCheck');
+		Route::get('/data/{id}', 'SupplyManageController@checkSupplyData');
+		Route::post('/create', 'SupplyManageController@createSupply');
+		Route::post('/import', 'SupplyManageController@importSupply');
+		Route::get('/statistics', 'SupplyManageController@statisticsSupply');
+		Route::get('/statistics/product/{id}', 'SupplyManageController@statisticsProduct');
+		Route::get('/statistics/users/{id}', 'SupplyManageController@statisticsUsers');
+		Route::get('/statistics/table/{id}', 'SupplyManageController@statisticsTable');
+		Route::post('/statistics/export', 'SupplyManageController@exportSupply');
+		Route::get('/', 'SupplyManageController@viewSupply');
+	});
+	// > Supplier
+	Route::group(["prefix" => "supplier"], function () {
+		Route::get("/", "SupplierController@index");
+		Route::get("/{id}/edit", "SupplierController@edit");
+		Route::post("/update", "SupplierController@update");
+		Route::get("/delete/{id}", "SupplierController@delete");
+		Route::get("/new", "SupplierController@new");
+		Route::get("/data/{filter?}", "SupplierController@data");
+	});
 	// ------------------------- Transaksi -------------------------
 	Route::get('/transaction', 'TransactionManageController@viewTransaction');
 	Route::get('/transaction/product/{id}', 'TransactionManageController@transactionProduct');

@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="CSRF_TOKEN" content="{{ csrf_token() }}">
     <title>{{ env('APP_NAME') }}</title>
 
     <!-- CSS -->
@@ -18,6 +19,8 @@
     <link rel="stylesheet" href="{{ asset('css/main/style.css') }}">
     <link rel="shortcut icon" href="{{ asset('icons/favicon.png') }}" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
     @yield('css')
     <!-- End-CSS -->
 
@@ -128,112 +131,7 @@
         <div class="container-fluid page-body-wrapper">
             <!-- SideNav -->
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
-                <ul class="nav">
-                    <li class="nav-item nav-profile">
-                        <a href="{{ url('/profile') }}" class="nav-link">
-                            <div class="profile-image">
-                                <img class="img-xs rounded-circle"
-                                    src="{{ asset('pictures/' . auth()->user()->foto) }}" alt="profile image">
-                                <div class="dot-indicator bg-success"></div>
-                            </div>
-                            <div class="text-wrapper">
-                                @php
-                                    $user_name = auth()->user()->nama;
-                                    if (strlen($user_name) > 12) {
-                                        $nama = substr($user_name, 0, 12) . '..';
-                                    } else {
-                                        $nama = $user_name;
-                                    }
-                                @endphp
-                                <p class="profile-name">{{ $nama }}</p>
-                                <p class="designation">{{ auth()->user()->role }}</p>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="nav-item nav-category">Daftar Menu</li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/dashboard') }}">
-                            <span class="menu-title">Dashboard</span>
-                        </a>
-                    </li>
-                    @php
-                        $access = \App\Acces::where('user', auth()->user()->id)->first();
-                    @endphp
-                    @if ($access->kelola_akun == 1)
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="collapse" href="#kelola_akun" aria-expanded="false"
-                                aria-controls="kelola_akun">
-                                <span class="menu-title">Kelola Akun</span>
-                                <i class="menu-arrow"></i>
-                            </a>
-                            <div class="collapse" id="kelola_akun">
-                                <ul class="nav flex-column sub-menu">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/account') }}">Daftar Akun</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/access') }}">Hak Akses</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                    @endif
-                    @if ($access->kelola_barang == 1)
-                        @if (\App\Supply_system::first()->status == true)
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="collapse" href="#kelola_barang"
-                                    aria-expanded="false" aria-controls="kelola_barang">
-                                    <span class="menu-title">Kelola Barang</span>
-                                    <i class="menu-arrow"></i>
-                                </a>
-                                <div class="collapse" id="kelola_barang">
-                                    <ul class="nav flex-column sub-menu">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{{ url('/product') }}">Daftar Barang</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="{{ url('/supply') }}">Pasok Barang</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url('/product') }}">
-                                    <span class="menu-title">Kelola Barang</span>
-                                </a>
-                            </li>
-                        @endif
-                    @endif
-                    @if ($access->transaksi == 1)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/transaction') }}">
-                                <span class="menu-title">Transaksi</span>
-                            </a>
-                        </li>
-                    @endif
-                    @if ($access->kelola_laporan == 1)
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="collapse" href="#kelola_laporan"
-                                aria-expanded="false" aria-controls="kelola_laporan">
-                                <span class="menu-title">Kelola Laporan</span>
-                                <i class="menu-arrow"></i>
-                            </a>
-                            <div class="collapse" id="kelola_laporan">
-                                <ul class="nav flex-column sub-menu">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/report/transaction') }}">Laporan
-                                            Transaksi</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ url('/report/workers') }}">Laporan
-                                            Pegawai</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                    @endif
-                </ul>
+                @include('templates.sidebar')
             </nav>
             <!-- End-SideNav -->
 
@@ -330,6 +228,8 @@
     <script src="{{ asset('plugins/js/sweetalert.min.js') }}"></script>
     <script src="{{ asset('plugins/js/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('js/templates/script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
     <script type="text/javascript">
         $(document).on('input', 'input[name=search_page]', function() {
             if ($(this).val() != '') {

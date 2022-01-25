@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTriggerSupply extends Migration
+class CreateProductUnitTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateTriggerSupply extends Migration
      */
     public function up()
     {
-        DB::unprepared('CREATE TRIGGER tg_pasok_barang AFTER INSERT ON supplies FOR EACH ROW
-            BEGIN
-                UPDATE products SET stok = stok + NEW.jumlah WHERE kode_barang = NEW.kode_barang;
-            END
-        ');
+        Schema::create('product_unit', function (Blueprint $table) {
+            $table->id();
+            $table->string("name");
+            $table->timestamps();
+        });
     }
 
     /**
@@ -27,6 +27,6 @@ class CreateTriggerSupply extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP TRIGGER tg_pasok_barang');
+        Schema::dropIfExists('product_unit');
     }
 }
