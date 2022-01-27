@@ -8,6 +8,7 @@ use App\Acces;
 use App\Market;
 use App\Product;
 use App\Activity;
+use App\Helpers\Stock;
 use App\Transaction;
 use App\Supply_system;
 use Illuminate\Http\Request;
@@ -116,15 +117,20 @@ class TransactionManageController extends Controller
             $check_supply_system = Supply_system::first();
             if ($check_supply_system->status == true) {
                 for ($j = 0; $j < $jml_barang; $j++) {
-                    $product = Product::where('kode_barang', '=', $req->kode_barang[$j])
+                    $product = Product::select("id")
+                        ->where('kode_barang', '=', $req->kode_barang[$j])
                         ->first();
-                    $product->stok = $product->stok - $req->jumlah_barang[$j];
-                    $product->save();
-                    $product_status = Product::where('kode_barang', '=', $req->kode_barang[$j])
-                        ->first();
-                    if ($product_status->stok == 0) {
-                        $product_status->keterangan = 'Habis';
-                        $product_status->save();
+
+                    $reduceStock = Stock::reduceStock($product->id, $req->jumlah_barang[$j]);
+
+                    if (!$reduceStock) {
+                        dd($reduceStock);
+                    }
+
+                    $product_stok = Stock::qty($product->id);
+                    if ($product_stok <= 0) {
+                        $product->keterangan = 'Habis';
+                        $product->save();
                     }
                 }
             }

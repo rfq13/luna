@@ -246,11 +246,10 @@
                                                 {{ number_format($product->harga, 2, ',', '.') }}</td>
                                             @if ($supply_system->status == true)
                                                 <td>
-                                                    @if ($product->keterangan == 'Tersedia')
-                                                        <span
-                                                            class="btn tersedia-span">{{ $product->keterangan }}</span>
+                                                    @if ($product->stok <= 0)
+                                                        <span class="btn habis-span">Kosong</span>
                                                     @else
-                                                        <span class="btn habis-span">{{ $product->keterangan }}</span>
+                                                        <span class="btn tersedia-span">Tersedia</span>
                                                     @endif
                                                 </td>
                                             @endif

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\Stock;
 
 class Supply extends Model
 {
@@ -25,13 +26,10 @@ class Supply extends Model
     {
         parent::boot();
         static::created(function ($supply) {
-            if ($supply->jumlah > 0) {
-                $sh = new SupplyHistory;
-                $sh->product_id = $supply->product_id;
-                $sh->jumlah = $supply->jumlah;
-                $sh->harga_beli = $supply->harga_beli;
-                $sh->ppn = $supply->ppn;
-                $sh->supplier_id = $supply->supplier_id;
+
+            if ($supply->jumlah > 0 && $supply->show_stock != 1) {
+                Log::info("berhashill!");
+                $sh = Stock::manipulateModel($supply, (new SupplyHistory), ['product_id', 'jumlah', 'harga_beli', 'supplier_id', 'ppn']);
                 $sh->save();
             }
         });

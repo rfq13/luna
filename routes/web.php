@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
 	return view('welcome');
-});
+})->middleware("guest");
 
-Route::get('/login', 'AuthManageController@viewLogin')->name('login');
+Route::get('/login', 'AuthManageController@viewLogin')->middleware("guest")->name('login');
 Route::post('/verify_login', 'AuthManageController@verifyLogin');
 Route::post('/first_account', 'UserManageController@firstAccount');
 
@@ -85,6 +85,16 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 		Route::get("/delete/{id}", "SupplierController@delete");
 		Route::get("/new", "SupplierController@new");
 		Route::get("/data/{filter?}", "SupplierController@data");
+	});
+
+	// > Branch
+	Route::group(["prefix" => "branch"], function () {
+		Route::get("/", "BranchController@index");
+		Route::post("/", "BranchController@store");
+		Route::post("/update", "BranchController@update");
+		Route::get("/create", "BranchController@create");
+		Route::get("/edit/{id}", "BranchController@edit");
+		Route::delete("/delete", "BranchController@destroy");
 	});
 	// ------------------------- Transaksi -------------------------
 	Route::get('/transaction', 'TransactionManageController@viewTransaction');

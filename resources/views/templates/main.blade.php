@@ -45,10 +45,16 @@
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown">
                         @php
+                            $fn = function ($supply) {
+                                $supply
+                                    // ->where('show_stock', 1)
+                                    ->havingRaw('SUM(jumlah) < ?', [10]);
+                            };
+                            
                             $cek_supply_system = \App\Supply_system::first();
-                            $jumlah_notif = \App\Product::where('stok', '<', 10)->count();
-                            $notifications = \App\Product::where('stok', '<', 10)->get();
-                            $notification = \App\Product::where('stok', '<', 10)
+                            $notifications = \App\Product::whereHas('supply', $fn)->get();
+                            $jumlah_notif = $notifications->count();
+                            $notification = \App\Product::whereHas('supply', $fn)
                                 ->take(3)
                                 ->get();
                         @endphp

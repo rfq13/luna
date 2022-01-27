@@ -80,7 +80,7 @@ function loadData(url = false) {
                     <td>
                         ${supplier.name}
                     </td>
-                    <td>${supplier.products.length}</td>
+                    <td>${supplier.products_count}</td>
                     <td>
                         <button type="button"
                             class="btn btn-edit btn-icons btn-rounded btn-secondary"

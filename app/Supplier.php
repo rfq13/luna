@@ -9,8 +9,13 @@ class Supplier extends Model
 {
     use HasFactory;
 
-    function products()
+    protected $appends = ['products_count'];
+    function getProductsCountAttribute()
     {
-        return $this->hasMany(Product::class);
+        return Supply::select("product_id")
+            ->distinct()
+            ->where("supplier_id", $this->id)
+            ->get()
+            ->count();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Session;
 use App\Unit;
 use App\Acces;
+use App\Helpers\Stock;
 use App\Supply;
 use App\Product;
 use App\Transaction;
@@ -94,11 +95,11 @@ class ProductManageController extends Controller
                 if ($req->berat_barang != '') {
                     $product->berat_barang = $req->berat_barang . ' ' . $req->satuan_berat;
                 }
-                if ($supply_system->status == true) {
-                    $product->stok = $req->stok;
-                } else {
-                    $product->stok = 1;
-                }
+                // if ($supply_system->status == true) {
+                //     $product->stok = $req->stok;
+                // } else {
+                //     $product->stok = 1;
+                // }
                 $product->harga = $req->harga;
                 $product->save();
 
@@ -182,7 +183,7 @@ class ProductManageController extends Controller
                 $product->nama_barang = $req->nama_barang;
                 $product->berat_barang = $req->berat_barang . ' ' . $req->satuan_berat;
                 $product->unit_id = $req->satuan_produk;
-                $product->stok = $req->stok;
+                // $product->stok = $req->stok;
                 $product->harga = $req->harga;
                 $product->supplier_id = $req->supplier;
 

@@ -102,6 +102,6 @@ class SupplierController extends Controller
         }
 
         $sort = $filter == 'name' ? 'asc' : 'desc';
-        return Supplier::with('products')->orderBy($filter, $sort)->get();
+        return Supplier::orderBy($filter, $sort)->get();
     }
 }

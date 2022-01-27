@@ -239,8 +239,8 @@
                                 </thead>
                                 <tbody>
                                     @php
-                                        $supplies = \App\Supply::where('product_id', '=', $products->first()->id)
-                                            ->select('supplies.*')
+                                        $supplies = \App\SupplyHistory::where('product_id', '=', $products->first()->id)
+                                            ->select('*')
                                             ->with('supplier')
                                             ->whereHas('supplier')
                                             ->orderBy('created_at', 'DESC')

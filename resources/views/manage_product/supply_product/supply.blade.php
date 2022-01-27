@@ -42,8 +42,9 @@
                                 @foreach ($dates as $date)
                                     <li class="txt-light">{{ date('d M, Y', strtotime($date)) }}</li>
                                     @php
-                                        $supplies = \App\Supply::whereDate('supplies.created_at', $date)
-                                            ->select('supplies.*')
+                                        $supplies = \App\SupplyHistory::whereDate('created_at', $date)
+                                            ->whereHas('supplier')
+                                            ->whereHas('product')
                                             ->latest()
                                             ->get();
                                     @endphp

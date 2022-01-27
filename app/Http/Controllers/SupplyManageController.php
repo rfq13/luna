@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Supply_system;
 use Illuminate\Http\Request;
 use App\Imports\SupplyImport;
+use App\SupplyHistory;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -48,15 +49,18 @@ class SupplyManageController extends Controller
     // Show View Supply
     public function viewSupply()
     {
+
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
             ->first();
         $supply_system = Supply_system::first();
         if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
-            $supplies = Supply::with(['supplier', 'product'])
+            $supplies = SupplyHistory::select("created_at")
+                // ->where("show_stock", 1)
                 ->whereHas('supplier')
                 ->whereHas('product')
                 ->get();
+
             $array = array();
             foreach ($supplies as $no => $supply) {
                 array_push($array, $supplies[$no]->created_at->toDateString());
@@ -150,8 +154,8 @@ class SupplyManageController extends Controller
         if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
             $product = Product::where('kode_barang', '=', $id)
                 ->first();
-            $supplies = Supply::where('product_id', '=', $product->id)
-                ->select('supplies.*')
+            $supplies = SupplyHistory::where('product_id', '=', $product->id)
+                // ->select('supplies.*')
                 ->orderBy('created_at', 'ASC')
                 ->get();
             $dates = array();
@@ -179,7 +183,7 @@ class SupplyManageController extends Controller
             ->first();
         $supply_system = Supply_system::first();
         if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
-            echo Supply::select('supplier_id')
+            echo SupplyHistory::select('supplier_id')
                 ->whereHas('product', function ($product) use ($id) {
                     return $product->where("kode_barang", $id);
                 })
@@ -198,12 +202,12 @@ class SupplyManageController extends Controller
             ->first();
         $supply_system = Supply_system::first();
         if ($check_access->kelola_barang == 1 && $supply_system->status == true) {
-            $supplies = Supply::whereHas('product', function ($product) use ($id) {
+            $supplies = SupplyHistory::whereHas('product', function ($product) use ($id) {
                 return $product->where('kode_barang', $id);
             })
                 ->with("supplier")
                 ->whereHas("supplier")
-                ->select('supplies.*')
+                // ->select('supplies.*')
                 ->orderBy('created_at', 'DESC')
                 ->get();
 
@@ -225,7 +229,7 @@ class SupplyManageController extends Controller
             foreach ($req->kode_barang_supply as $no => $kode_barang) {
                 $product = Product::where('kode_barang', $kode_barang)
                     ->first();
-                $product->stok += $req->jumlah_supply[$no];
+                // $product->stok += $req->jumlah_supply[$no];
 
                 if ($product->stok > 0) {
                     $product->keterangan = 'Tersedia';
