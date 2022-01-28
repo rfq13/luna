@@ -43,7 +43,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 	Route::get('/account/delete/{id}', 'UserManageController@deleteAccount');
 	Route::get('/account/filter/{id}', 'UserManageController@filterTable');
 	// > Akses
-	Route::get('/access', 'AccessManageController@viewAccess');
+	Route::get('/access', 'AccessManageController@viewAccess')->middleware("pusat");
 	Route::get('/access/change/{user}/{access}', 'AccessManageController@changeAccess');
 	Route::get('/access/check/{user}', 'AccessManageController@checkAccess');
 	Route::get('/access/sidebar', 'AccessManageController@sidebarRefresh');

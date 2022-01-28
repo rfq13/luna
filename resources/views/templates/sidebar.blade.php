@@ -60,9 +60,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url('/branch') }}">Daftar Cabang</a>
                     </li>
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a class="nav-link" href="{{ url('/access') }}">Hak Akses</a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
         </li>
