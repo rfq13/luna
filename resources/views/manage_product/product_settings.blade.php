@@ -58,6 +58,42 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-noborder b-radius">
+                <div class="card-body">
+                    <div class="row">
+                        <strong>PPn Barang</strong>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mt-2">
+                            <table class="table-payment-3">
+                                <tr>
+                                    <td>
+                                        <form action="{{ url('/product/ppn') }}" method="post">
+                                            @csrf
+                                            <div class="input-group">
+                                                <input type="number" min="0" class="form-control ppn-input" name="ppn"
+                                                    placeholder="Masukkan ppn barang"
+                                                    value="{{ old('ppn') ?? \GS::get('ppn') }}">
+                                                <div class="input-group-prepend">
+                                                    <button class="btn btn-bayar" type="submit">save</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @if ($errors->has('ppn'))
+                                    <tr class="ppn-error">
+                                        <td class="text-danger py-0" style="font-size: 13px">{{ $errors->first('ppn') }}
+                                        </td>
+                                    </tr>
+                                @endif
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 @section('script')

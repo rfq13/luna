@@ -118,7 +118,7 @@ $(function () {
             harga: "required",
             supplier: "required",
             satuan_produk: "required",
-            ppn: "required",
+            // ppn: "required",
             harga_beli: "required",
         },
         messages: {

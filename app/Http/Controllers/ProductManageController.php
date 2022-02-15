@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Session;
 use App\Unit;
 use App\Acces;
-use App\Helpers\Stock;
 use App\Supply;
 use App\Product;
 use App\Transaction;
@@ -14,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Imports\ProductImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\GeneralSetting as GS;
 
 class ProductManageController extends Controller
 {
@@ -251,5 +250,14 @@ class ProductManageController extends Controller
     public function get_unit()
     {
         return Unit::get();
+    }
+
+    function set_ppn(Request $request)
+    {
+        $request->validate(['ppn' => 'required'], ['required' => ':attribute harus diisi!']);
+
+        GS::set("ppn", $request->ppn);
+
+        return back();
     }
 }

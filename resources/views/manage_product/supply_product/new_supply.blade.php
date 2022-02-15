@@ -165,12 +165,13 @@
                                             </div>
                                             <div class="col-12 error-notice" id="harga_beli_error"></div>
                                         </div>
-                                        <div class="form-group row top-min">
+                                        <div class="form-group row top-min d-none">
                                             <label class="col-12 font-weight-bold col-form-label">PPn</label>
                                             <div class="col-12">
                                                 <div class="input-group">
                                                     <input type="number" class="form-control number-input input-notzero"
-                                                        name="ppn" placeholder="Masukkan PPn" min="0" value="0">
+                                                        name="ppn" placeholder="Masukkan PPn" min="0"
+                                                        value="{{ \GS::get('ppn') ?? 0 }}">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">%</div>
                                                     </div>

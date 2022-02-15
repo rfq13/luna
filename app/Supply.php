@@ -28,7 +28,6 @@ class Supply extends Model
         static::created(function ($supply) {
 
             if ($supply->jumlah > 0 && $supply->show_stock != 1) {
-                Log::info("berhashill!");
                 $sh = Stock::manipulateModel($supply, (new SupplyHistory), ['product_id', 'jumlah', 'harga_beli', 'supplier_id', 'ppn']);
                 $sh->save();
             }

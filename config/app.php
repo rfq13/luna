@@ -178,7 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\StockServiceProvider::class,
         App\Providers\UserServiceProvider::class,
-
+        App\Providers\GeneralSettingServiceProvider::class,
     ],
 
     /*
@@ -234,6 +234,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Stock' => App\Helpers\Stock::class,
         'UserHelp' => App\Helpers\User::class,
+        'GS' => App\Helpers\GeneralSetting::class,
     ],
 
 ];

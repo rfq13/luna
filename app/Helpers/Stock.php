@@ -13,7 +13,7 @@ class Stock
         $cond = ['product_id' => $product_id, "processed" => 0];
         $current_stock = self::qty($product_id);
         $processed = [];
-        if ($current_stock > $stokReduce) {
+        if ($current_stock >= $stokReduce) {
             DB::beginTransaction();
             try {
                 $remainingReducingStok = $stokReduce;
@@ -33,13 +33,14 @@ class Stock
 
                     $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn']);
                     $newSupply->jumlah = -$supply->jumlah;
+                    $newSupply->show_stock = 0;
                     $newSupply->save();
 
                     if ($reduce > 0) {
 
                         $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn']);
                         $newSupply->jumlah = $reduce;
-                        $newSupply->show_stock = 0;
+                        $newSupply->show_stock = 1;
                         $newSupply->save();
                     }
 
@@ -52,7 +53,7 @@ class Stock
                     "message" => $th->getMessage(),
                     "line" => $th->getLine(),
                 ]));
-                return false;
+                return "$th->getMessage() ... \n $th->getLine()";
             }
 
 
@@ -74,8 +75,7 @@ class Stock
     public static function qty($id)
     {
         return DB::table("supplies")->select('jumlah')->where([
-            "product_id" => $id,
-            // "show_stock" => 1
+            "product_id" => $id
         ])->sum("jumlah");
     }
 }

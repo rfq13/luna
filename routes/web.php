@@ -61,6 +61,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 		Route::get('/settings', 'ProductManageController@settings')->name("product.settings");
 		Route::post('/unit', 'ProductManageController@set_unit')->name("product.unit.set");
 		Route::get('/unit', 'ProductManageController@get_unit')->name("product.unit.get");
+		Route::post('/ppn', 'ProductManageController@set_ppn')->name("product.ppn.set");
 	});
 	// > Pasok
 	Route::group(["prefix" => "supply"], function () {

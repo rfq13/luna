@@ -201,14 +201,14 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <div class="col-lg-6 col-md-6 col-sm-12 space-bottom">
+                                <div class="col-lg-6 col-md-6 col-sm-12 space-bottom d-none">
                                     <div class="row">
                                         <label class="col-12 font-weight-bold col-form-label">PPn<span
                                                 class="text-danger">*</span></label>
                                         <div class="col-12">
                                             <div class="input-group">
                                                 <input type="text" class="form-control number-input" name="ppn"
-                                                    placeholder="Masukkan PPn Barang">
+                                                    placeholder="Masukkan PPn Barang" value="{{ \GS::get('ppn') }}">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">%</span>
                                                 </div>
