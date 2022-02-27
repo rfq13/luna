@@ -32,9 +32,9 @@ class BranchController extends Controller
      */
     public function create()
     {
-        return view("branch.create", [
-            'admins' => \App\User::where(['role' => 'admin', 'branch_id' => 0])->get()
-        ]);
+        $admins  = DB::select("SELECT * FROM users WHERE branch_id = 0 AND role = 'admin' AND id != (SELECT id FROM users WHERE username = 'admin') LIMIT 1");
+        // dd($admins);
+        return view("branch.create", compact("admins"));
     }
 
     /**
