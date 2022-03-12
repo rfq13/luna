@@ -31,6 +31,7 @@ class UserManageController extends Controller
         $access->kelola_barang = 1;
         $access->transaksi = 1;
         $access->kelola_laporan = 1;
+        $access->kelola_cabang = 1;
         $access->save();
 
         Session::flash('create_success', 'Akun baru berhasil dibuat');
