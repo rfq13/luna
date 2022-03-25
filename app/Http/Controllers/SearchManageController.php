@@ -132,7 +132,7 @@ class SearchManageController extends Controller
     	$laporan_pegawai_content = 'Laporan | Laporan Pegawai => ';
     	foreach ($accounts as $account) {
     		$transaction_activity = Transaction::where('id_kasir', $account->id)->select('kode_transaksi')->distinct()->get();
-    		$supply_activity = Supply::where('id_pemasok', $account->id)->count();
+    		$supply_activity = Supply::where('supplier_id', $account->id)->count();
     		$laporan_pegawai_content .= ' (Aktivitas Pasok : ' . $supply_activity . ', Aktivitas Transaksi : ' . $transaction_activity->count() . ')';
     	}
 

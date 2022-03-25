@@ -19,9 +19,12 @@ use Maatwebsite\Excel\Facades\Excel;
 class SupplyManageController extends Controller
 {
     // Supply System
-    public function supplySystem($id)
+    public function supplySystem($id,$id_account = 0, $prevent = false)
     {
-        $id_account = Auth::id();
+        if (!$id_account) {
+            $id_account = Auth::id();
+        }
+        
         $check_access = Acces::where('user', $id_account)
             ->first();
         if ($check_access->kelola_barang == 1) {
@@ -30,17 +33,22 @@ class SupplyManageController extends Controller
                 $supply_system->status = true;
                 $supply_system->save();
 
-                session()->flash('supply_system_status', 'Sistem berhasil diaktifkan');
-
-                return back();
+                if (!$prevent) {
+                    session()->flash('supply_system_status', 'Sistem berhasil diaktifkan');
+    
+                    return back();
+                }
             } else {
                 $supply_system->status = false;
                 $supply_system->save();
 
-                session()->flash('supply_system_status', 'Sistem berhasil dinonaktifkan');
-
-                return back();
+                if (!$prevent) {
+                    session()->flash('supply_system_status', 'Sistem berhasil dinonaktifkan');
+    
+                    return back();
+                }
             }
+            return true;
         } else {
             return back();
         }

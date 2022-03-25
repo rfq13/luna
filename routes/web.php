@@ -1,5 +1,7 @@
 <?php
 
+use App\Helpers\Stock;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +64,8 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 		Route::post('/unit', 'ProductManageController@set_unit')->name("product.unit.set");
 		Route::get('/unit', 'ProductManageController@get_unit')->name("product.unit.get");
 		Route::post('/ppn', 'ProductManageController@set_ppn')->name("product.ppn.set");
+		Route::get("distribution", "DistributionController@index");
+		Route::get("distribution/create", "DistributionController@create");
 	});
 	// > Pasok
 	Route::group(["prefix" => "supply"], function () {
@@ -97,12 +101,14 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 		Route::get("/edit/{id}", "BranchController@edit");
 		Route::delete("/delete", "BranchController@destroy");
 	});
+
 	// ------------------------- Transaksi -------------------------
 	Route::get('/transaction', 'TransactionManageController@viewTransaction');
 	Route::get('/transaction/product/{id}', 'TransactionManageController@transactionProduct');
 	Route::get('/transaction/product/check/{id}', 'TransactionManageController@transactionProductCheck');
 	Route::post('/transaction/process', 'TransactionManageController@transactionProcess');
 	Route::get('/transaction/receipt/{id}', 'TransactionManageController@receiptTransaction');
+
 	// ------------------------- Kelola Laporan -------------------------
 	Route::get('/report/transaction', 'ReportManageController@reportTransaction');
 	Route::post('/report/transaction/filter', 'ReportManageController@filterTransaction');
@@ -112,6 +118,20 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 	Route::get('/report/workers/filter/{id}', 'ReportManageController@filterWorker');
 	Route::get('/report/workers/detail/{id}', 'ReportManageController@detailWorker');
 	Route::post('/report/workers/export/{id}', 'ReportManageController@exportWorker');
+
+	Route::group(['prefix'=>'distribution'],function ()
+	{
+		Route::post('/', 'DistributionController@store');
+	});
+});
+
+Route::any('transferStock', function (Request $req)
+{
+	// dd($req->all());
+	$stock = $req->stock;
+	$id = $req->id;
+
+	Stock::transferToBranch($id, $stock,$req->to,$req->from);
 });
 
 // Auth::routes();

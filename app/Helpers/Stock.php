@@ -5,13 +5,19 @@ namespace App\Helpers;
 use App\Supply;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class Stock
 {
-    public static function reduceStock($product_id, $stokReduce)
+    protected static $processed = [];
+    protected static $manipulateKeys = [];
+    protected static $errors = [];
+
+    public static function reduceStock($product_id, $stokReduce,$transaction_id=null,$branch_id=0)
     {
-        $cond = ['product_id' => $product_id, "processed" => 0];
-        $current_stock = self::qty($product_id);
+        $cond = ['product_id' => $product_id, "processed" => 0,"branch_id"=>$branch_id];
+        $current_stock = self::qty($product_id,$branch_id);
+        // dd($current_stock,$product_id,$stokReduce,$branch_id);
         $processed = [];
         if ($current_stock >= $stokReduce) {
             DB::beginTransaction();
@@ -26,21 +32,24 @@ class Stock
 
                     $reduce = $supply->jumlah - abs($remainingReducingStok);
 
-                    array_push($processed, $supply->id);
+                    array_push($processed, ["supply"=>$supply,"jumlah"=>$supply->jumlah-$reduce]);
 
                     $supply->processed = 1;
                     $supply->save();
 
                     $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn']);
                     $newSupply->jumlah = -$supply->jumlah;
+                    $newSupply->branch_id = $supply->branch_id;
                     $newSupply->show_stock = 0;
+                    $newSupply->transaction_id = $transaction_id;
                     $newSupply->save();
 
                     if ($reduce > 0) {
 
-                        $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn']);
+                        $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn','transaction_id']);
                         $newSupply->jumlah = $reduce;
                         $newSupply->show_stock = 1;
+                        $newSupply->transaction_id = $transaction_id;
                         $newSupply->save();
                     }
 
@@ -48,14 +57,18 @@ class Stock
 
                     DB::commit();
                 } while ($remainingReducingStok < 0);
+
+                self::$processed = $processed;
+                
             } catch (\Throwable $th) {
-                Log::error(json_encode([
+                self::$errors = [
                     "message" => $th->getMessage(),
                     "line" => $th->getLine(),
-                ]));
-                return "$th->getMessage() ... \n $th->getLine()";
-            }
+                ];
 
+                Log::error(json_encode(self::$errors));
+                return $th->getMessage()." ... \n ".$th->getLine();
+            }
 
             return true;
         }
@@ -63,8 +76,26 @@ class Stock
         return false;
     }
 
-    public static function manipulateModel($from, $to, array $key)
+    public static function manipulateModel($from, $to, array $key,$unset=[])
     {
+        if (count($key) <= 0) {
+            $key = array_keys($from->toArray());
+
+            for ($i=0; $i < count($unset); $i++) {
+                if (($unkey = array_search($unset[$i], $key)) !== false) {
+                    unset($key[$unkey]);
+                }
+            }
+
+            if (($unkey = array_search("id", $key)) !== false) {
+                unset($key[$unkey]);
+            }
+
+            $key = array_values($key);
+
+            self::$manipulateKeys = $key;
+        }
+
         foreach ($key as $q) {
             $to->$q = $from->$q;
         }
@@ -72,10 +103,35 @@ class Stock
         return $to;
     }
 
-    public static function qty($id)
+    public static function qty($id,$branch_id=0)
     {
         return DB::table("supplies")->select('jumlah')->where([
-            "product_id" => $id
+            "product_id" => $id,
+            "branch_id" => $branch_id,
         ])->sum("jumlah");
+    }
+
+    public static function transferToBranch($product_id,$qty,$to,$from=0)
+    {
+        self::reduceStock($product_id,$qty,null,$from);
+
+        foreach (self::$processed as $key => $supply) {
+            $newSupply = self::manipulateModel($supply['supply'], (new Supply), [],['id','processed']);
+            
+            $newSupply->jumlah = $supply['jumlah'];
+            $newSupply->branch_id = $to;
+            $newSupply->show_stock = 0;
+            $newSupply->from_supply_id = $supply['supply']->id;
+            $newSupply->save();
+
+        }
+
+        // dd(array_keys(self::$processed[0]['supply']->toArray()));
+    }
+
+
+    function errors()
+    {
+        return self::$errors;
     }
 }

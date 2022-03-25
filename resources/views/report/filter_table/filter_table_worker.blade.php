@@ -13,7 +13,7 @@
     @endif
   </td>
   @php
-  $pasok = \App\Supply::where('id_pemasok', $user->id)
+  $pasok = \App\Supply::where('supplier_id', $user->id)
   ->count();
   @endphp
   <td class="pl-4"><span class="ammount-box bg-secondary"><i class="mdi mdi-import"></i></span>{{ $pasok }} X</td>

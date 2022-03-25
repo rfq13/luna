@@ -198,7 +198,7 @@ class ReportManageController extends Controller
         if($check_access->kelola_laporan == 1){
             $worker = User::find($id);
             $supplies = Supply::select('supplies.*')
-            ->where('id_pemasok', $id)
+            ->where('supplier_id', $id)
             ->get();
             $array_1 = array();
             foreach ($supplies as $no => $supply) {
@@ -325,7 +325,7 @@ class ReportManageController extends Controller
                         $transaksi = array_unique($array);
                         rsort($transaksi);
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -337,7 +337,7 @@ class ReportManageController extends Controller
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -375,7 +375,7 @@ class ReportManageController extends Controller
                         $transaksi = array_unique($array);
                         rsort($transaksi);
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -387,7 +387,7 @@ class ReportManageController extends Controller
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -425,7 +425,7 @@ class ReportManageController extends Controller
                         $transaksi = array_unique($array);
                         rsort($transaksi);
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -437,7 +437,7 @@ class ReportManageController extends Controller
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
                         $supplies = Supply::select('supplies.*')
-                        ->where('id_pemasok', $id)
+                        ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
@@ -479,7 +479,7 @@ class ReportManageController extends Controller
                     $transaksi = array_unique($array);
                     rsort($transaksi);
                     $supplies = Supply::select('supplies.*')
-                    ->where('id_pemasok', $id)
+                    ->where('supplier_id', $id)
                     ->whereBetween('created_at', array($start_date2, $end_date2))
                     ->get();
                     $array = array();
@@ -491,7 +491,7 @@ class ReportManageController extends Controller
                 }elseif($req->laporan[0] == 'pasok'){
                     $transaksi = '';
                     $supplies = Supply::select('supplies.*')
-                    ->where('id_pemasok', $id)
+                    ->where('supplier_id', $id)
                     ->whereBetween('created_at', array($start_date2, $end_date2))
                     ->get();
                     $array = array();
@@ -516,7 +516,7 @@ class ReportManageController extends Controller
                 $tgl_awal = $start_date2;
                 $tgl_akhir = $end_date2;
             }
-            $jml_act_pasok = Supply::where('id_pemasok', $id)
+            $jml_act_pasok = Supply::where('supplier_id', $id)
             ->count();
             $jml_act_trans = Transaction::where('id_kasir', $id)
             ->count();

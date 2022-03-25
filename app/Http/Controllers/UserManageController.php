@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Acces;
-use Illuminate\Http\Request;
+use App\GeneralSetting;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -15,27 +17,43 @@ class UserManageController extends Controller
     // Create First Account
     public function firstAccount(Request $req)
     {
-        $users = new User;
-        $users->nama = $req->nama;
-        $users->role = 'admin';
-        $users->foto = 'default.jpg';
-        $users->email = $req->email;
-        $users->username = $req->username_2;
-        $users->password = Hash::make($req->password_2);
-        $users->remember_token = Str::random(60);
-        $users->save();
+        DB::beginTransaction();
+        try {
+            $users = new User;
+            $users->nama = $req->nama;
+            $users->role = 'admin';
+            $users->foto = 'default.jpg';
+            $users->email = $req->email;
+            $users->username = $req->username_2;
+            $users->password = Hash::make($req->password_2);
+            $users->remember_token = Str::random(60);
+            $users->save();
+    
+            $access = new Acces;
+            $access->user = $users->id;
+            $access->kelola_akun = 1;
+            $access->kelola_barang = 1;
+            $access->transaksi = 1;
+            $access->kelola_laporan = 1;
+            $access->kelola_cabang = 1;
+            $access->save();
+    
+            (new SupplyManageController)->supplySystem("active",$users->id,true);
+    
+            $gs = GeneralSetting::firstOrNew();
+            $gs->main_user_id = $users->id;
+            $gs->ppn = 0;
+            $gs->save();
 
-        $access = new Acces;
-        $access->user = $users->id;
-        $access->kelola_akun = 1;
-        $access->kelola_barang = 1;
-        $access->transaksi = 1;
-        $access->kelola_laporan = 1;
-        $access->kelola_cabang = 1;
-        $access->save();
-
-        Session::flash('create_success', 'Akun baru berhasil dibuat');
-
+            DB::commit();
+    
+            Session::flash('create_success', 'Akun baru berhasil dibuat');
+            
+        } catch (\Throwable $th) {
+            dd($th->getLine(), $th->getMessage());
+            Session::flash('create_failed', $th->getMessage()." Line: ".$th->getLine());
+            //throw $th;
+        }
         return back();
     }
 

@@ -89,9 +89,11 @@ class TransactionManageController extends Controller
     // Transaction Process
     public function transactionProcess(Request $req)
     {
-        $id_account = Auth::id();
+        $auth = Auth::user();
+        $id_account = $auth->id;
         $check_access = Acces::where('user', $id_account)
             ->first();
+        $processed = [];
         if ($check_access->transaksi == 1) {
             $jml_barang = count($req->kode_barang);
             for ($i = 0; $i < $jml_barang; $i++) {
@@ -109,9 +111,11 @@ class TransactionManageController extends Controller
                 $transaction->total = $req->total;
                 $transaction->bayar = $req->bayar;
                 $transaction->kembali = $req->bayar - $req->total;
-                $transaction->id_kasir = Auth::id();
-                $transaction->kasir = Auth::user()->nama;
+                $transaction->id_kasir = $id_account;
+                $transaction->kasir = $auth->nama;
                 $transaction->save();
+
+                $processed[$i] = $transaction->id;
             }
 
             $check_supply_system = Supply_system::first();
@@ -121,10 +125,10 @@ class TransactionManageController extends Controller
                         ->where('kode_barang', '=', $req->kode_barang[$j])
                         ->first();
 
-                    $reduceStock = Stock::reduceStock($product->id, $req->jumlah_barang[$j]);
+                    $reduceStock = Stock::reduceStock($product->id, $req->jumlah_barang[$j],$processed[$j],$auth->branch_id);
 
                     if (!$reduceStock) {
-                        dd($reduceStock);
+                        dd(Stock::errors());
                     }
 
                     $product_stok = Stock::qty($product->id);
@@ -136,8 +140,8 @@ class TransactionManageController extends Controller
             }
 
             $activity = new Activity;
-            $activity->id_user = Auth::id();
-            $activity->user = Auth::user()->nama;
+            $activity->id_user = $id_account;
+            $activity->user = $auth->nama;
             $activity->nama_kegiatan = 'transaksi';
             $activity->jumlah = $jml_barang;
             $activity->save();

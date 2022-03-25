@@ -10,7 +10,7 @@ class Supply extends Model
 {
     // Initialize
     protected $fillable = [
-        'kode_barang', 'nama_barang', 'jumlah', 'harga_beli', 'id_pemasok', 'pemasok',
+        'kode_barang', 'nama_barang', 'jumlah', 'harga_beli', 'supplier_id', 'pemasok',
     ];
 
     function supplier()
@@ -21,6 +21,10 @@ class Supply extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
+    }
 
     protected static function boot()
     {
@@ -28,7 +32,7 @@ class Supply extends Model
         static::created(function ($supply) {
 
             if ($supply->jumlah > 0 && $supply->show_stock != 1) {
-                $sh = Stock::manipulateModel($supply, (new SupplyHistory), ['product_id', 'jumlah', 'harga_beli', 'supplier_id', 'ppn']);
+                $sh = Stock::manipulateModel($supply, (new SupplyHistory), [],['transaction_id','show_stock','from_supply_id','created_at','updated_at','distribution_id']);
                 $sh->save();
             }
         });

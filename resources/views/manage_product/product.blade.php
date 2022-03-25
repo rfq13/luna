@@ -189,23 +189,25 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <div class="alert alert-primary d-flex justify-content-between align-items-center" role="alert">
-                @if ($supply_system->status == false)
-                    <div class="text-instruction">
-                        <i class="mdi mdi-information-outline mr-2"></i> Aktifkan sistem stok dan pasok barang dengan klik
-                        tombol disamping
-                    </div>
-                    <a href="{{ url('/supply/system/active') }}" class="btn stok-btn">Aktifkan</a>
-                @else
-                    <div class="text-instruction">
-                        <i class="mdi mdi-information-outline mr-2"></i> Nonaktifkan sistem stok dan pasok barang dengan
-                        klik tombol disamping
-                    </div>
-                    <a href="{{ url('/supply/system/nonactive') }}" class="btn stok-btn">Nonaktifkan</a>
-                @endif
+        {{-- @if (\App\Helpers\User::isMain())
+            <div class="col-12">
+                <div class="alert alert-primary d-flex justify-content-between align-items-center" role="alert">
+                    @if ($supply_system->status == false)
+                        <div class="text-instruction">
+                            <i class="mdi mdi-information-outline mr-2"></i> Aktifkan sistem stok dan pasok barang dengan klik
+                            tombol disamping
+                        </div>
+                        <a href="{{ url('/supply/system/active') }}" class="btn stok-btn">Aktifkan</a>
+                    @else
+                        <div class="text-instruction">
+                            <i class="mdi mdi-information-outline mr-2"></i> Nonaktifkan sistem stok dan pasok barang dengan
+                            klik tombol disamping
+                        </div>
+                        <a href="{{ url('/supply/system/nonactive') }}" class="btn stok-btn">Nonaktifkan</a>
+                    @endif
+                </div>
             </div>
-        </div>
+        @endif --}}
         <div class="col-12 grid-margin">
             <div class="card card-noborder b-radius">
                 <div class="card-body">

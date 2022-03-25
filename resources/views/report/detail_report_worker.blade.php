@@ -189,7 +189,7 @@
 			              <li class="txt-light">{{ date('d M, Y', strtotime($date)) }}</li>
 			              @php
 			              $supplies = \App\Supply::whereDate('created_at', $date)
-			              ->where('id_pemasok', $worker->id)
+			              ->where('supplier_id', $worker->id)
 			              ->select('supplies.*')
 			              ->latest()
 			              ->get();

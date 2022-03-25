@@ -165,7 +165,7 @@
                                             </div>
                                             <div class="col-12 error-notice" id="harga_beli_error"></div>
                                         </div>
-                                        <div class="form-group row top-min d-none">
+                                        <div class="form-group row top-min">
                                             <label class="col-12 font-weight-bold col-form-label">PPn</label>
                                             <div class="col-12">
                                                 <div class="input-group">
