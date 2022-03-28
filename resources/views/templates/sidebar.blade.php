@@ -89,6 +89,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url('/supplier') }}">Supplier</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/product/distribution') }}">Distribusi</a>
+                        </li>
                     </ul>
                 </div>
             </li>
