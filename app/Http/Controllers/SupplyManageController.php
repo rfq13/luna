@@ -251,6 +251,7 @@ class SupplyManageController extends Controller
 
                     $supply_product->jumlah = $req->jumlah_supply[$no];
                     $supply_product->harga_beli = $req->harga_beli_supply[$no];
+                    $supply_product->total_harga_beli = $req->harga_beli_supply[$no] * $req->jumlah_supply[$no];
                     $supply_product->supply_id = $supply->id;
                     // $supply_product->supplier_id = $req->supplier_id[$no];
                     $supply_product->product_id = $product->id;

@@ -38,6 +38,7 @@ class SupplyImport implements ToModel, WithValidation, WithHeadingRow
             "berat_per_barang",
             "jumlah_barang",
             "total_harga_beli",
+            "harga_beli_per_barang",
             "harga_jual_ecer",
             "harga_jual_grosir",
             "harga_jual_extra",
@@ -69,10 +70,10 @@ class SupplyImport implements ToModel, WithValidation, WithHeadingRow
             $product->unit_id = $unit->id;
         }
 
-        $product->harga_ecer = $row[$header[6]];
-        $product->harga_grosir = $row[$header[7]];
-        $product->harga_extra = $row[$header[8]];
-        $product->harga_khusus = $row[$header[9]];
+        $product->harga_ecer = $row[$header[7]];
+        $product->harga_grosir = $row[$header[8]];
+        $product->harga_extra = $row[$header[9]];
+        $product->harga_khusus = $row[$header[10]];
         $product->jenis_barang = 'Konsumtif';
         $product->nama_barang = $row[$header[1]];
         $product->berat_barang = $row[$header[3]];
@@ -87,12 +88,12 @@ class SupplyImport implements ToModel, WithValidation, WithHeadingRow
         $supply_product = new SupplyProduct;
 
         $supply_product->jumlah = $row[$header[4]];
-        $supply_product->harga_beli = $row[$header[5]] / $row[$header[4]];
+        $supply_product->harga_beli = $row[$header[6]];
         $supply_product->total_harga_beli = $row[$header[5]];
         $supply_product->supply_id = $this->supply->id;
         // $supply_product->supplier_id = $req->supplier_id[$no];
         $supply_product->product_id = $product->id;
-        $supply_product->ppn = $row[$header[10]];
+        $supply_product->ppn = $row[$header[11]];
         $supply_product->save();
 
         $this->supply->total_harga += $row[$header[5]];
