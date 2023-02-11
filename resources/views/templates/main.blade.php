@@ -21,6 +21,72 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        .loading:hover path {
+            fill: red;
+        }
+
+        .loading {
+            margin: 20px;
+            width: 100px;
+            height: 100px;
+            -webkit-animation-name: spin;
+            -webkit-animation-duration: 2000ms;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-timing-function: linear;
+            -moz-animation-name: spin;
+            -moz-animation-duration: 2000ms;
+            -moz-animation-iteration-count: infinite;
+            -moz-animation-timing-function: linear;
+            -ms-animation-name: spin;
+            -ms-animation-duration: 2000ms;
+            -ms-animation-iteration-count: infinite;
+            -ms-animation-timing-function: linear;
+            animation-name: spin;
+            animation-duration: 2000ms;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        @-ms-keyframes spin {
+            from {
+                -ms-transform: rotate(0deg);
+            }
+            to {
+                -ms-transform: rotate(360deg);
+            }
+        }
+
+        @-moz-keyframes spin {
+            from {
+                -moz-transform: rotate(0deg);
+            }
+            to {
+                -moz-transform: rotate(360deg);
+            }
+        }
+
+        @-webkit-keyframes spin {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
     @yield('css')
     <!-- End-CSS -->
 
@@ -50,11 +116,11 @@
                                     // ->where('show_stock', 1)
                                     ->havingRaw('SUM(jumlah) < ?', [10]);
                             };
-                            
+
                             $cek_supply_system = \App\Supply_system::first();
-                            $notifications = \App\Product::whereHas('supply', $fn)->get();
+                            $notifications = \App\Product::whereHas('supply_product', $fn)->get();
                             $jumlah_notif = $notifications->count();
-                            $notification = \App\Product::whereHas('supply', $fn)
+                            $notification = \App\Product::whereHas('supply_product', $fn)
                                 ->take(3)
                                 ->get();
                         @endphp
@@ -235,8 +301,17 @@
     <script src="{{ asset('plugins/js/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('js/templates/script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script type="text/javascript">
+        @if(session()->get('errors'))
+            toastr.error("{{ session()->get('errors')->first() }}");
+        @endif
+
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
         $(document).on('input', 'input[name=search_page]', function() {
             if ($(this).val() != '') {
                 $('#content-web-page').prop('hidden', true);

@@ -9,9 +9,9 @@ class SupplyHistory extends Model
 {
     use HasFactory;
 
-    function supplier()
+    function supply()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supply::class);
     }
     function product()
     {

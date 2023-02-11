@@ -117,7 +117,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            {{-- <div class="form-group row">
                                 <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Supplier</label>
                                 <div class="col-lg-9 col-md-9 col-sm-12">
                                     <select name="supplier" id="supplier_opt">
@@ -126,7 +126,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="form-group row" @if ($supply_system->status == false) hidden="" @endif>
                                 <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Stok
                                     Barang</label>
@@ -147,18 +147,60 @@
                                     id="stok_error"></div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Harga
+                                <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Harga Ecer
                                     Barang</label>
                                 <div class="col-lg-9 col-md-9 col-sm-12">
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Rp. </span>
                                         </div>
-                                        <input type="text" class="form-control number-input input-notzero" name="harga">
+                                        <input type="text" class="form-control number-input input-notzero" name="harga_ecer">
                                     </div>
                                 </div>
                                 <div class="col-lg-9 col-md-9 col-sm-12 offset-lg-3 offset-md-3 error-notice"
-                                    id="harga_error"></div>
+                                    id="harga_ecer_error"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Harga Khusus
+                                    Barang</label>
+                                <div class="col-lg-9 col-md-9 col-sm-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Rp. </span>
+                                        </div>
+                                        <input type="text" class="form-control number-input input-notzero" name="harga_khusus">
+                                    </div>
+                                </div>
+                                <div class="col-lg-9 col-md-9 col-sm-12 offset-lg-3 offset-md-3 error-notice"
+                                    id="harga_khusus"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Harga Grosir
+                                    Barang</label>
+                                <div class="col-lg-9 col-md-9 col-sm-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Rp. </span>
+                                        </div>
+                                        <input type="text" class="form-control number-input input-notzero" name="harga_grosir">
+                                    </div>
+                                </div>
+                                <div class="col-lg-9 col-md-9 col-sm-12 offset-lg-3 offset-md-3 error-notice"
+                                    id="harga_grosir_error"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-md-3 col-sm-12 col-form-label font-weight-bold">Harga Extra
+                                    Barang</label>
+                                <div class="col-lg-9 col-md-9 col-sm-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Rp. </span>
+                                        </div>
+                                        <input type="text" class="form-control number-input input-notzero" name="harga_extra">
+                                    </div>
+                                </div>
+                                <div class="col-lg-9 col-md-9 col-sm-12 offset-lg-3 offset-md-3 error-notice"
+                                    id="harga_extra_error"></div>
                             </div>
                         </div>
                         <div class="modal-body" id="scan-modal-body" hidden="">
@@ -222,7 +264,10 @@
                                         @if ($supply_system->status == true)
                                             <th>Stok</th>
                                         @endif
-                                        <th>Harga</th>
+                                        <th>Harga Ecer</th>
+                                        <th>Harga Grosir</th>
+                                        <th>Harga Extra</th>
+                                        <th>Harga Khusus</th>
                                         <th>Keterangan</th>
                                         <th></th>
                                     </tr>
@@ -245,7 +290,16 @@
                                             @endif
                                             <td><span class="ammount-box bg-green"><i
                                                         class="mdi mdi-coin"></i></span>Rp.
-                                                {{ number_format($product->harga, 2, ',', '.') }}</td>
+                                                {{ number_format($product->harga_ecer, 2, ',', '.') }}</td>
+                                            <td><span class="ammount-box bg-green"><i
+                                                        class="mdi mdi-coin"></i></span>Rp.
+                                                {{ number_format($product->harga_grosir, 2, ',', '.') }}</td>
+                                            <td><span class="ammount-box bg-green"><i
+                                                        class="mdi mdi-coin"></i></span>Rp.
+                                                {{ number_format($product->harga_extra, 2, ',', '.') }}</td>
+                                            <td><span class="ammount-box bg-green"><i
+                                                        class="mdi mdi-coin"></i></span>Rp.
+                                                {{ number_format($product->harga_khusus, 2, ',', '.') }}</td>
                                             @if ($supply_system->status == true)
                                                 <td>
                                                     @if ($product->stok <= 0)
@@ -361,7 +415,10 @@
                     $('select[name=supplier]').val(response.product.supplier_id).selectpicker(
                         'refresh');
                     $('input[name=stok]').val(response.product.stok);
-                    $('input[name=harga]').val(response.product.harga);
+                    $('input[name=harga_ecer]').val(response.product.harga_ecer);
+                    $('input[name=harga_khusus]').val(response.product.harga_khusus);
+                    $('input[name=harga_extra]').val(response.product.harga_extra);
+                    $('input[name=harga_grosir]').val(response.product.harga_grosir);
                     var berat_barang = response.product.berat_barang.split(" ");
                     $('input[name=berat_barang]').val(berat_barang[0]);
                     $('select[name=jenis_barang] option[value="' + response.product.jenis_barang + '"]')

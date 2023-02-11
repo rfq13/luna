@@ -10,4 +10,10 @@ class Transaction extends Model
     protected $fillable = [
         'kode_transaksi', 'kode_barang', 'nama_barang', 'harga', 'jumlah', 'total_barang', 'subtotal', 'diskon', 'total', 'bayar', 'kembali', 'id_kasir', 'kasir',
     ];
+
+    // Relationship
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

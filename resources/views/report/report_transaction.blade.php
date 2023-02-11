@@ -139,7 +139,21 @@
                 <div class="col-lg-4 col-md-12 col-sm-12 col-12 search-div">
                   <input type="text" name="search" class="form-control form-control-lg" placeholder="Cari transaksi">
                 </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 col-12 input-group">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 input-group">
+                  <select name="is_kredit" class="form-control form-control-lg payment-method" id="payment-method">
+                    <option value="all">Semua</option>
+                    <option value="1">Kredit</option>
+                    <option value="0">Cash</option>
+                  </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 input-group">
+                  <select name="ppn" class="form-control form-control-lg payment-method" id="payment-method">
+                    <option value="all">Semua</option>
+                    <option value="1">Ppn</option>
+                    <option value="0">Non-Ppn</option>
+                  </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 input-group">
                   <input type="text" name="tgl_awal" class="form-control form-control-lg date" placeholder="Tanggal awal">
                   <div class="input-group-append">
                     <div class="input-group-text">
@@ -147,7 +161,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 col-12 input-group tgl-akhir-div">
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 input-group tgl-akhir-div">
                   <input type="text" name="tgl_akhir" class="form-control form-control-lg date" placeholder="Tanggal akhir">
                   <div class="input-group-append">
                     <div class="input-group-text">
@@ -179,20 +193,22 @@
                     <th>Total</th>
                     <th>Bayar</th>
                     <th>Kembali</th>
+                    <th>Tipe Customer</th>
+                    <th>Nama Customer</th>
+                    <th>NPWP Customer</th>
+                    <th>NIK Customer</th>
+                    <th>NoHp Customer</th>
+                    <th>Alamat Customer</th>
                     <th></th>
                   </tr>
                   @foreach($transactions as $transaction)
                   <tr>
                     @php
-                    $transaksi = \App\Transaction::where('kode_transaksi', $transaction->kode_transaksi)
-                    ->select('transactions.*')
-                    ->first();
                     $products = \App\Transaction::where('kode_transaksi', $transaction->kode_transaksi)
                     ->select('transactions.*')
                     ->get();
-                    $tgl_transaksi = \App\Transaction::where('kode_transaksi', '=' , $transaction->kode_transaksi)
-                    ->select('created_at')
-                    ->first();
+                    $transaksi = $products->first();
+                    $tgl_transaksi = $transaksi
                     @endphp
                     <td class="td-1">
                       <span class="d-block font-weight-bold big-font">{{ $transaction->kode_transaksi }}</span>
@@ -201,7 +217,14 @@
                     <td><span class="ammount-box bg-green"><i class="mdi mdi-coin"></i></span>Rp. {{ number_format($transaksi->total,2,',','.') }}</td>
                     <td class="text-success font-weight-bold">- Rp. {{ number_format($transaksi->bayar,2,',','.') }}</td>
                     <td>Rp. {{ number_format($transaksi->kembali,2,',','.') }}</td>
+                    <td><span class="badge badge-pill badge-info p-1" style="text-transform: capitalize;">{{ $transaksi->tipe_customer }}</span></td>
+                    <td>{{ $transaksi->customer->nama }}</td>
+                    <td>{{ $transaksi->customer->npwp }}</td>
+                    <td>{{ $transaksi->customer->nik }}</td>
+                    <td>{{ $transaksi->customer->nohp }}</td>
+                    <td>{{ $transaksi->customer->alamat }}</td>
                     <td>
+                      <a class="btn btn-selengkapnya font-weight-bold" href="{{ url('/report/transaction/export') }}/{{ $transaction->kode_transaksi }}" target="_blank"><i class="mdi mdi-export arrow-view"></i></a>
                       <button class="btn btn-selengkapnya font-weight-bold" type="button" data-target="#dropdownTransaksi{{ $transaction->kode_transaksi }}"><i class="mdi mdi-chevron-down arrow-view"></i></button>
                     </td>
                   </tr>
@@ -228,6 +251,7 @@
                             <span class="light-td mb-1">Harga</span>
                             <span class="bold-td">Rp. {{ number_format($product->harga,2,',','.') }}</span>
                           </td>
+                          <td></td>
                           <td>
                             <span class="light-td mb-1">Total Barang</span>
                             <span class="bold-td">Rp. {{ number_format($product->total_barang,2,',','.') }}</span>
@@ -253,6 +277,7 @@
 <script src="{{ asset('plugins/js/datedropper.js') }}"></script>
 <script src="{{ asset('js/report/report_transaction/script.js') }}"></script>
 <script type="text/javascript">
+
 var ctx = document.getElementById('myChart').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'line',

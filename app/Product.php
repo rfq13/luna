@@ -13,9 +13,9 @@ class Product extends Model
         'kode_barang', 'jenis_barang', 'nama_barang', 'berat_barang', 'merek', 'stok', 'harga', 'keterangan',
     ];
 
-    function supply()
+    function supply_product()
     {
-        return $this->hasMany(Supply::class);
+        return $this->hasMany(SupplyProduct::class);
     }
 
     function satuan()

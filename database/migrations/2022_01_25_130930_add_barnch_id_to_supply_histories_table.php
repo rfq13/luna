@@ -16,7 +16,7 @@ class AddBarnchIdToSupplyHistoriesTable extends Migration
         Schema::table('supply_histories', function (Blueprint $table) {
             $table->integer("branch_id")->nullable()->default(0)->after("supplier_id");
         });
-        Schema::table('supplies', function (Blueprint $table) {
+        Schema::table('supply_products', function (Blueprint $table) {
             $table->integer("branch_id")->nullable()->default(0)->after("supplier_id");
         });
         Schema::table('users', function (Blueprint $table) {
@@ -34,7 +34,7 @@ class AddBarnchIdToSupplyHistoriesTable extends Migration
         Schema::table('supply_histories', function (Blueprint $table) {
             $table->dropColumn("branch_id");
         });
-        Schema::table('supplies', function (Blueprint $table) {
+        Schema::table('supply_products', function (Blueprint $table) {
             $table->dropColumn("branch_id");
         });
         Schema::table('users', function (Blueprint $table) {

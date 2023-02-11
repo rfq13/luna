@@ -6,7 +6,7 @@ use Auth;
 use Carbon\Carbon;
 use App\User;
 use App\Acces;
-use App\Supply;
+use App\SupplyProduct;
 use App\Product;
 use App\Activity;
 use App\Transaction;
@@ -32,7 +32,7 @@ class SearchManageController extends Controller
     	->distinct()
     	->get();
     	$products = Product::all();
-    	$supplies = Supply::all();
+    	$supply_products = Supply::all();
     	$accounts = User::all();
         $kode_transaksi_dis = Transaction::select('kode_transaksi')
         ->distinct()
@@ -70,11 +70,11 @@ class SearchManageController extends Controller
         $arr_ammount = count($dates);
         $incomes_data = array();
         if($arr_ammount > 7){
-            for ($i = 0; $i < 7; $i++) { 
-                array_push($incomes_data, $dates[$i]);  
+            for ($i = 0; $i < 7; $i++) {
+                array_push($incomes_data, $dates[$i]);
             }
         }elseif($arr_ammount > 0){
-            for ($i = 0; $i < $arr_ammount; $i++) { 
+            for ($i = 0; $i < $arr_ammount; $i++) {
                 array_push($incomes_data, $dates[$i]);
             }
         }
@@ -107,14 +107,14 @@ class SearchManageController extends Controller
     	// Product
     	$product_content = 'Daftar Barang => Aktif/Nonaktifkan sistem stok dan pasok barang, Barang : ';
     	foreach ($products as $product) {
-    		$product_content .= ' (Kode Barang : ' . $product->kode_barang . ', Jenis Barang : ' . $product->jenis_barang . ', Nama Barang : ' . $product->nama_barang . ', Berat Barang : ' . $product->berat_barang . ', Merek : '. $product->merek . ', Stok : ' . $product->stok . ', Harga : Rp. ' . number_format($product->harga,2,',','.') . ', Keterangan : ' . $product->keterangan . ')';
+    		$product_content .= ' (Kode Barang : ' . $product->kode_barang . ', Jenis Barang : ' . $product->jenis_barang . ', Nama Barang : ' . $product->nama_barang . ', Berat Barang : ' . $product->berat_barang . ', Merek : '. $product->merek . ', Stok : ' . $product->stok . ', Harga : Rp. ' . number_format($product->harga_ecer,2,',','.') . ', Keterangan : ' . $product->keterangan . ')';
     	}
     	// New Product
     	$new_prpduct_content = 'Daftar Barang | Barang Baru : Kode Barang, Nama Barang, Jenis Barang, Berat Barang, Merek Barang, Stok Barang, Harga Barang || Import(Upload Excel) -> Langkah - Langkah Import : 1. Siapkan data dengan format Excel (.xls atau .xlsx), 2. Jika sudah sesuai pilih file, 3. Klik simpan, maka data otomatis tersimpan';
     	// Supply
     	$supply_content = 'Riwayat Pasok => ';
     	$supply_statistics_content = 'Riwayat Pasok | Statistik Pasok : ';
-    	foreach ($supplies as $supply) {
+    	foreach ($supply_products as $supply) {
     		$supply_content .= ' (Kode Barang : '. $supply->kode_barang . ', Nama Barang : ' . $supply->nama_barang . ', Jumlah : ' . $supply->jumlah . ', Harga Beli : Rp. ' . number_format($supply->harga_beli,2,',','.') . ', Pemasok : ' . $supply->pemasok .')';
     		$supply_statistics_content .= ' (Kode Barang : '. $supply->kode_barang . ', Nama Barang : ' . $supply->nama_barang . ', Jumlah : ' . $supply->jumlah . ', Harga Beli : Rp. ' . number_format($supply->harga_beli,2,',','.') . ', Pemasok : ' . $supply->pemasok .')';
     	}
@@ -243,7 +243,7 @@ class SearchManageController extends Controller
     	$data_trash = array();
     	$data_result = array();
 		$number = 0;
-		for ($i = 0; $i < count($page_array); $i++) { 
+		for ($i = 0; $i < count($page_array); $i++) {
 			if (stripos($page_array[$i]['page_content'], $word) === FALSE) {
 				$data_trash[$number] = array(
 					'page_name' => $page_array[$i]['page_name'],

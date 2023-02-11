@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\Stock;
+use App\Http\Controllers\KreditController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -91,6 +92,9 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 		Route::get("/new", "SupplierController@new");
 		Route::get("/data/{filter?}", "SupplierController@data");
 	});
+	// > Kredit
+    Route::get('/filter/{id}', 'KreditController@filterTable');
+    Route::resource('kredit', "KreditController");
 
 	// > Branch
 	Route::group(["prefix" => "branch"], function () {
@@ -109,11 +113,16 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,kasir']], function () {
 	Route::post('/transaction/process', 'TransactionManageController@transactionProcess');
 	Route::get('/transaction/receipt/{id}', 'TransactionManageController@receiptTransaction');
 
+	// ------------------------- Customer -------------------------
+	Route::get('/customer/{nik}/nik', 'CustomerController@searchByNik');
+    Route::resource('customer', 'CustomerController');
+
 	// ------------------------- Kelola Laporan -------------------------
 	Route::get('/report/transaction', 'ReportManageController@reportTransaction');
 	Route::post('/report/transaction/filter', 'ReportManageController@filterTransaction');
 	Route::get('/report/transaction/chart/{id}', 'ReportManageController@chartTransaction');
 	Route::post('/report/transaction/export', 'ReportManageController@exportTransaction');
+	Route::get('/report/transaction/export/{id}', 'ReportManageController@exportSpesificTransaction');
 	Route::get('/report/workers', 'ReportManageController@reportWorker');
 	Route::get('/report/workers/filter/{id}', 'ReportManageController@filterWorker');
 	Route::get('/report/workers/detail/{id}', 'ReportManageController@detailWorker');

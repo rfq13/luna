@@ -42,7 +42,7 @@ class ProductImport implements ToModel, WithValidation
 
     public function rules(): array
     {
-        if (Supply_system::first()->status == true) {   
+        if (Supply_system::first()->status == true) {
             return [
                 '0' => function($attribute, $value, $onFailure) {
                     if (Product::where('kode_barang', '=', $value)->count() > 0) {

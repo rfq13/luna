@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Acces;
 use App\Market;
-use App\Supply;
+use App\SupplyProduct;
 use App\Transaction;
 use Illuminate\Http\Request;
 
@@ -32,11 +32,11 @@ class ReportManageController extends Controller
             $arr_ammount = count($dates);
             $incomes_data = array();
             if($arr_ammount > 7){
-            	for ($i = 0; $i < 7; $i++) { 
-            		array_push($incomes_data, $dates[$i]);	
+            	for ($i = 0; $i < 7; $i++) {
+            		array_push($incomes_data, $dates[$i]);
             	}
             }elseif($arr_ammount > 0){
-            	for ($i = 0; $i < $arr_ammount; $i++) { 
+            	for ($i = 0; $i < $arr_ammount; $i++) {
             		array_push($incomes_data, $dates[$i]);
             	}
             }
@@ -67,24 +67,34 @@ class ReportManageController extends Controller
     public function filterTransaction(Request $req)
     {
         $id_account = Auth::id();
-        $check_access = Acces::where('user', $id_account)
-        ->first();
+        $check_access = Acces::where('user', $id_account)->first();
         if($check_access->kelola_laporan == 1){
+            $conditions = [];
+
         	$start_date = $req->tgl_awal;
         	$end_date = $req->tgl_akhir;
         	$start_date2 = $start_date[6].$start_date[7].$start_date[8].$start_date[9].'-'.$start_date[3].$start_date[4].'-'.$start_date[0].$start_date[1].' 00:00:00';
         	$end_date2 = $end_date[6].$end_date[7].$end_date[8].$end_date[9].'-'.$end_date[3].$end_date[4].'-'.$end_date[0].$end_date[1].' 23:59:59';
-        	$supplies = Transaction::select()
-        	->whereBetween('created_at', array($start_date2, $end_date2))
-        	->get();
+        	$supply_products = Transaction::select()
+        	->whereBetween('created_at', array($start_date2, $end_date2));
+
+            if($req->is_kredit != 'all'){
+                $supply_products->where('is_kredit', $req->is_kredit == 1 ? 1 : 0);
+            }
+
+            if($req->ppn != 'all'){
+                $supply_products->where('ppn',($req->ppn == 1 ? '> ' : '='), 0);
+            }
+
+        	$supply_products = $supply_products->get();
             $array = array();
-            foreach ($supplies as $no => $supply) {
-                array_push($array, $supplies[$no]->created_at->toDateString());
+            foreach ($supply_products as $no => $supply) {
+                array_push($array, $supply_products[$no]->created_at->toDateString());
             }
             $dates = array_unique($array);
             rsort($dates);
 
-        	return view('report.report_transaction_filter', compact('dates'));
+        	return view('report.report_transaction_filter', compact('dates','req'));
         }else{
             return back();
         }
@@ -99,7 +109,7 @@ class ReportManageController extends Controller
         if($check_access->kelola_laporan == 1){
             $users = User::orderBy($id, 'asc')
             ->get();
-            
+
             return view('report.filter_table.filter_table_worker', compact('users'));
         }else{
             return back();
@@ -113,10 +123,10 @@ class ReportManageController extends Controller
         $check_access = Acces::where('user', $id_account)
         ->first();
         if($check_access->kelola_laporan == 1){
-        	$supplies = Transaction::all();
+        	$supply_products = Transaction::all();
             $array = array();
-            foreach ($supplies as $no => $supply) {
-                array_push($array, $supplies[$no]->created_at->toDateString());
+            foreach ($supply_products as $no => $supply) {
+                array_push($array, $supply_products[$no]->created_at->toDateString());
             }
             $dates = array_unique($array);
             rsort($dates);
@@ -125,11 +135,11 @@ class ReportManageController extends Controller
 
         	if($id == 'minggu'){
         		if($arr_ammount > 7){
-    	        	for ($i = 0; $i < 7; $i++) { 
-    	        		array_push($incomes_data, $dates[$i]);	
+    	        	for ($i = 0; $i < 7; $i++) {
+    	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }elseif($arr_ammount > 0){
-    	        	for ($i = 0; $i < $arr_ammount; $i++) { 
+    	        	for ($i = 0; $i < $arr_ammount; $i++) {
     	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }
@@ -140,16 +150,16 @@ class ReportManageController extends Controller
     	        }
 
     	        return response()->json([
-    	        	'incomes' => $incomes, 
+    	        	'incomes' => $incomes,
     	        	'total' => $total
     	        ]);
         	}elseif($id == 'bulan'){
         		if($arr_ammount > 30){
-    	        	for ($i = 0; $i < 30; $i++) { 
-    	        		array_push($incomes_data, $dates[$i]);	
+    	        	for ($i = 0; $i < 30; $i++) {
+    	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }elseif($arr_ammount > 0){
-    	        	for ($i = 0; $i < $arr_ammount; $i++) { 
+    	        	for ($i = 0; $i < $arr_ammount; $i++) {
     	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }
@@ -160,16 +170,16 @@ class ReportManageController extends Controller
     	        }
 
     	        return response()->json([
-    	        	'incomes' => $incomes, 
+    	        	'incomes' => $incomes,
     	        	'total' => $total
     	        ]);
         	}elseif($id == 'tahun'){
         		if($arr_ammount > 365){
-    	        	for ($i = 0; $i < 365; $i++) { 
-    	        		array_push($incomes_data, $dates[$i]);	
+    	        	for ($i = 0; $i < 365; $i++) {
+    	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }elseif($arr_ammount > 0){
-    	        	for ($i = 0; $i < $arr_ammount; $i++) { 
+    	        	for ($i = 0; $i < $arr_ammount; $i++) {
     	        		array_push($incomes_data, $dates[$i]);
     	        	}
     	        }
@@ -180,7 +190,7 @@ class ReportManageController extends Controller
     	        }
 
     	        return response()->json([
-    	        	'incomes' => $incomes, 
+    	        	'incomes' => $incomes,
     	        	'total' => $total
     	        ]);
         	}
@@ -197,12 +207,12 @@ class ReportManageController extends Controller
         ->first();
         if($check_access->kelola_laporan == 1){
             $worker = User::find($id);
-            $supplies = Supply::select('supplies.*')
+            $supply_products = SupplyProduct::select('supply_products.*')
             ->where('supplier_id', $id)
             ->get();
             $array_1 = array();
-            foreach ($supplies as $no => $supply) {
-                array_push($array_1, $supplies[$no]->created_at->toDateString());
+            foreach ($supply_products as $no => $supply) {
+                array_push($array_1, $supply_products[$no]->created_at->toDateString());
             }
             $dates_1 = array_unique($array_1);
             rsort($dates_1);
@@ -220,6 +230,24 @@ class ReportManageController extends Controller
             return view('report.detail_report_worker', compact('worker', 'dates_1', 'dates_2'));
         }else{
             return back();
+        }
+    }
+
+    // Export Spesific Transaction Report
+    public function exportSpesificTransaction(Request $req, $kode)
+    {
+        // dd($req->all(),$kode);
+
+        $transactions = Transaction::where('kode_transaksi', $kode)->get();
+        // dd($transaction);
+        if(!$transactions){
+            session()->flash('error', 'Kode Transaksi Tidak Ditemukan');
+            return back();
+        }else{
+            $transaction = $transactions->first();
+            $market = Market::first();
+            $pdf = PDF::loadView('report.export_spesific_transaction', compact('transactions', 'transaction','market'));
+            return $pdf->stream('Laporan Transaksi ' . $transaction->kode_transaksi . '.pdf');
         }
     }
 
@@ -324,25 +352,25 @@ class ReportManageController extends Controller
                         }
                         $transaksi = array_unique($array);
                         rsort($transaksi);
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
@@ -374,25 +402,25 @@ class ReportManageController extends Controller
                         }
                         $transaksi = array_unique($array);
                         rsort($transaksi);
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
@@ -424,25 +452,25 @@ class ReportManageController extends Controller
                         }
                         $transaksi = array_unique($array);
                         rsort($transaksi);
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
                     }elseif($req->laporan[0] == 'pasok'){
                         $transaksi = '';
-                        $supplies = Supply::select('supplies.*')
+                        $supply_products = SupplyProduct::select('supply_products.*')
                         ->where('supplier_id', $id)
                         ->whereBetween('created_at', array($last_time, $current_time))
                         ->get();
                         $array = array();
-                        foreach ($supplies as $no => $supply) {
-                            array_push($array, $supplies[$no]->created_at->toDateString());
+                        foreach ($supply_products as $no => $supply) {
+                            array_push($array, $supply_products[$no]->created_at->toDateString());
                         }
                         $pasok = array_unique($array);
                         rsort($pasok);
@@ -478,25 +506,25 @@ class ReportManageController extends Controller
                     }
                     $transaksi = array_unique($array);
                     rsort($transaksi);
-                    $supplies = Supply::select('supplies.*')
+                    $supply_products = SupplyProduct::select('supply_products.*')
                     ->where('supplier_id', $id)
                     ->whereBetween('created_at', array($start_date2, $end_date2))
                     ->get();
                     $array = array();
-                    foreach ($supplies as $no => $supply) {
-                        array_push($array, $supplies[$no]->created_at->toDateString());
+                    foreach ($supply_products as $no => $supply) {
+                        array_push($array, $supply_products[$no]->created_at->toDateString());
                     }
                     $pasok = array_unique($array);
                     rsort($pasok);
                 }elseif($req->laporan[0] == 'pasok'){
                     $transaksi = '';
-                    $supplies = Supply::select('supplies.*')
+                    $supply_products = SupplyProduct::select('supply_products.*')
                     ->where('supplier_id', $id)
                     ->whereBetween('created_at', array($start_date2, $end_date2))
                     ->get();
                     $array = array();
-                    foreach ($supplies as $no => $supply) {
-                        array_push($array, $supplies[$no]->created_at->toDateString());
+                    foreach ($supply_products as $no => $supply) {
+                        array_push($array, $supply_products[$no]->created_at->toDateString());
                     }
                     $pasok = array_unique($array);
                     rsort($pasok);
@@ -516,7 +544,7 @@ class ReportManageController extends Controller
                 $tgl_awal = $start_date2;
                 $tgl_akhir = $end_date2;
             }
-            $jml_act_pasok = Supply::where('supplier_id', $id)
+            $jml_act_pasok = SupplyProduct::where('supplier_id', $id)
             ->count();
             $jml_act_trans = Transaction::where('id_kasir', $id)
             ->count();

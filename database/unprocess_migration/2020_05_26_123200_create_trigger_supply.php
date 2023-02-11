@@ -13,7 +13,7 @@ class CreateTriggerSupply extends Migration
      */
     public function up()
     {
-        DB::unprepared('CREATE TRIGGER tg_pasok_barang AFTER INSERT ON supplies FOR EACH ROW
+        DB::unprepared('CREATE TRIGGER tg_pasok_barang AFTER INSERT ON supply_products FOR EACH ROW
             BEGIN
                 UPDATE products p SET p.stok = p.stok + NEW.jumlah WHERE p.id = NEW.product_id;
             END

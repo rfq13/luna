@@ -21,7 +21,7 @@ class DistributionController extends Controller
      */
     public function index()
     {
-        
+
         $id_account = Auth::id();
         $check_access = Acces::select('kelola_barang')->where('user', $id_account)->first();
 
@@ -68,7 +68,7 @@ class DistributionController extends Controller
 
             $failed = [];
 
-            for ($i=0; $i < count($request->id_barang); $i++) { 
+            for ($i=0; $i < count($request->id_barang); $i++) {
                 $id_barang = $request->id_barang[$i];
                 $jumlah = $request->jumlah_barang[$i];
 
@@ -83,7 +83,7 @@ class DistributionController extends Controller
                 dd($failed);
             }else{
                 DB::commit();
-                
+
                 return redirect()->back();
             }
         } catch (\Throwable $th) {

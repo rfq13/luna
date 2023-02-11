@@ -191,9 +191,9 @@
 			@foreach($pasok as $date)
 			<li class="text-10 txt-light">{{ date('d M, Y', strtotime($date)) }}</li>
 			@php
-			$supplies = \App\Supply::whereDate('supplies.created_at', $date)
+			$supply_products = \App\SupplyProduct::whereDate('supply_products.created_at', $date)
 			->where('supplier_id', $id)
-			->select('supplies.*')
+			->select('supply_products.*')
 			->latest()
 			->get();
 			@endphp
@@ -208,7 +208,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach($supplies as $supply)
+					@foreach($supply_products as $supply)
 					<tr>
 						<td class="text-left text-12 txt-dark">{{ date('H:i', strtotime($supply->created_at)) }}</td>
 						<td>

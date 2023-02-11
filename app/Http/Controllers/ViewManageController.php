@@ -7,13 +7,14 @@ use Carbon\Carbon;
 use App\Market;
 use App\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session as FacadesSession;
 
 class ViewManageController extends Controller
 {
     // Show View Dashboard
     public function viewDashboard()
     {
-    	$kd_transaction = Transaction::select('kode_transaksi')
+    	$kd_transaction = Transaction::select('kode_transaksi','created_at')
     	->latest()
     	->distinct()
     	->take(5)
@@ -29,20 +30,20 @@ class ViewManageController extends Controller
         $arr_ammount = count($dates);
         $incomes_data = array();
         if($arr_ammount > 7){
-            for ($i = 0; $i < 7; $i++) { 
-                array_push($incomes_data, $dates[$i]);  
+            for ($i = 0; $i < 7; $i++) {
+                array_push($incomes_data, $dates[$i]);
             }
         }elseif($arr_ammount > 0){
-            for ($i = 0; $i < $arr_ammount; $i++) { 
+            for ($i = 0; $i < $arr_ammount; $i++) {
                 array_push($incomes_data, $dates[$i]);
             }
         }
         $incomes = array_reverse($incomes_data);
-        $kode_transaksi_dis = Transaction::select('kode_transaksi')
+        $kode_transaksi_dis = Transaction::select('kode_transaksi','created_at')
         ->distinct()
         ->get();
         $kode_transaksi_dis_daily = Transaction::whereDate('created_at', Carbon::now())
-        ->select('kode_transaksi')
+        ->select('kode_transaksi','created_at')
         ->distinct()
         ->get();
         $all_incomes = 0;
@@ -67,21 +68,21 @@ class ViewManageController extends Controller
     public function filterChartDashboard($filter)
     {
         if($filter == 'pemasukan'){
-            $supplies = Transaction::all();
+            $supply_products = Transaction::all();
             $array = array();
-            foreach ($supplies as $no => $supply) {
-                array_push($array, $supplies[$no]->created_at->toDateString());
+            foreach ($supply_products as $no => $supply) {
+                array_push($array, $supply_products[$no]->created_at->toDateString());
             }
             $dates = array_unique($array);
             rsort($dates);
             $arr_ammount = count($dates);
             $incomes_data = array();
             if($arr_ammount > 7){
-                for ($i = 0; $i < 7; $i++) { 
-                    array_push($incomes_data, $dates[$i]);  
+                for ($i = 0; $i < 7; $i++) {
+                    array_push($incomes_data, $dates[$i]);
                 }
             }elseif($arr_ammount > 0){
-                for ($i = 0; $i < $arr_ammount; $i++) { 
+                for ($i = 0; $i < $arr_ammount; $i++) {
                     array_push($incomes_data, $dates[$i]);
                 }
             }
@@ -92,25 +93,25 @@ class ViewManageController extends Controller
             }
 
             return response()->json([
-                'incomes' => $incomes, 
+                'incomes' => $incomes,
                 'total' => $total
             ]);
         }else{
-            $supplies = Transaction::all();
+            $supply_products = Transaction::all();
             $array = array();
-            foreach ($supplies as $no => $supply) {
-                array_push($array, $supplies[$no]->created_at->toDateString());
+            foreach ($supply_products as $no => $supply) {
+                array_push($array, $supply_products[$no]->created_at->toDateString());
             }
             $dates = array_unique($array);
             rsort($dates);
             $arr_ammount = count($dates);
             $customer_data = array();
             if($arr_ammount > 7){
-                for ($i = 0; $i < 7; $i++) { 
-                    array_push($customer_data, $dates[$i]);  
+                for ($i = 0; $i < 7; $i++) {
+                    array_push($customer_data, $dates[$i]);
                 }
             }elseif($arr_ammount > 0){
-                for ($i = 0; $i < $arr_ammount; $i++) { 
+                for ($i = 0; $i < $arr_ammount; $i++) {
                     array_push($customer_data, $dates[$i]);
                 }
             }
@@ -121,7 +122,7 @@ class ViewManageController extends Controller
             }
 
             return response()->json([
-                'customers' => $customers, 
+                'customers' => $customers,
                 'jumlah' => $jumlah
             ]);
         }
@@ -136,7 +137,7 @@ class ViewManageController extends Controller
         $market->alamat = $req->alamat;
         $market->save();
 
-        Session::flash('update_success', 'Pengaturan berhasil diubah');
+        FacadesSession::flash('update_success', 'Pengaturan berhasil diubah');
 
         return back();
     }

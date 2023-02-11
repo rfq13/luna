@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Unit;
 use App\Acces;
+use App\Helpers\GeneralHelper;
+use App\SupplyProduct;
 use App\Supply;
 use App\Product;
 use App\Transaction;
@@ -13,6 +15,7 @@ use App\Imports\ProductImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\GeneralSetting as GS;
+use Illuminate\Support\Facades\DB;
 
 class ProductManageController extends Controller
 {
@@ -74,51 +77,73 @@ class ProductManageController extends Controller
             "supplier" => "required",
             "satuan_produk" => "required",
             "stok" => "required",
+            "harga_ecer" => "required",
+            "harga_extra" => "required",
+            "harga_grosir" => "required",
+            "harga_khusus" => "required",
         ]);
 
-        $id_account = Auth::id();
-        $check_access = Acces::where('user', $id_account)
-            ->first();
-        if ($check_access->kelola_barang == 1) {
-            $check_product = Product::where('kode_barang', $req->kode_barang)
-                ->count();
-            $supply_system = Supply_system::first();
+        try{
+            DB::beginTransaction();
 
-            if ($check_product == 0) {
-                $product = new Product;
-                $product->kode_barang = $req->kode_barang;
-                $product->jenis_barang = $req->jenis_barang;
-                $product->nama_barang = $req->nama_barang;
-                $product->unit_id = $req->satuan_produk;
+            $id_account = Auth::id();
+            $check_access = Acces::where('user', $id_account)
+                ->first();
+            if ($check_access->kelola_barang == 1) {
+                $check_product = Product::where('kode_barang', $req->kode_barang)->count();
+                // $supply_system = Supply_system::first();
 
-                if ($req->berat_barang != '') {
-                    $product->berat_barang = $req->berat_barang . ' ' . $req->satuan_berat;
+                if ($check_product == 0) {
+                    $product = new Product;
+                    $product->kode_barang = $req->kode_barang;
+                    $product->jenis_barang = $req->jenis_barang;
+                    $product->nama_barang = $req->nama_barang;
+                    $product->unit_id = $req->satuan_produk;
+                    $product->harga_ecer = $req->harga_ecer;
+                    $product->harga_extra = $req->harga_extra;
+                    $product->harga_grosir = $req->harga_grosir;
+                    $product->harga_khusus = $req->harga_khusus;
+
+                    if ($req->berat_barang != '') {
+                        $product->berat_barang = $req->berat_barang . ' ' . $req->satuan_berat;
+                    }
+
+                    $product->save();
+
+                    $supply = new Supply;
+                    $supply->kode_supply = GeneralHelper::generateCode();
+                    $supply->supplier_id = $req->supplier;
+                    $supply->total_harga = $req->harga_beli;
+                    $supply->save();
+
+                    $supply_product = new SupplyProduct;
+
+                    $supply_product->jumlah = $req->stok;
+                    $supply_product->harga_beli = $req->harga_beli;
+                    $supply_product->supply_id = $supply->id;
+                    $supply_product->product_id = $product->id;
+                    $supply_product->ppn = $req->ppn;
+                    $supply_product->save();
+
+
+                    session()->flash('create_success', 'Barang baru berhasil ditambahkan');
+
+                    DB::commit();
+
+                    return redirect('/product');
+                } else {
+                    session()->flash('create_failed', 'Kode barang telah digunakan');
+
+                    DB::rollback();
+                    return back();
                 }
-                // if ($supply_system->status == true) {
-                //     $product->stok = $req->stok;
-                // } else {
-                //     $product->stok = 1;
-                // }
-                $product->harga = $req->harga;
-                $product->save();
-
-                $supply = new Supply;
-                $supply->jumlah = $req->stok;
-                $supply->harga_beli = $req->harga_beli;
-                $supply->supplier_id = $req->supplier;
-                $supply->product_id = $product->id;
-                $supply->ppn = $req->ppn;
-                $supply->save();
-
-                session()->flash('create_success', 'Barang baru berhasil ditambahkan');
-
-                return redirect('/product');
             } else {
-                session()->flash('create_failed', 'Kode barang telah digunakan');
-
+                DB::rollback();
                 return back();
             }
-        } else {
+        }catch(\Exception $e){
+            session()->flash('create_failed', 'Terjadi kesalahan, coba lagi nanti');
+            DB::rollback();
             return back();
         }
     }
@@ -132,12 +157,14 @@ class ProductManageController extends Controller
         if ($check_access->kelola_barang == 1) {
             try {
                 $file = $req->file('excel_file');
-                $nama_file = rand() . $file->getClientOriginalName();
+                // $nama_file = rand() . $file->getClientOriginalName();
+                $nama_file = $file->getClientOriginalName();
                 $file->move('excel_file', $nama_file);
                 Excel::import(new ProductImport, public_path('/excel_file/' . $nama_file));
 
                 session()->flash('import_success', 'Data barang berhasil diimport');
             } catch (\Exception $ex) {
+                throw $ex;
                 session()->flash('import_failed', 'Cek kembali terdapat data kosong atau kode barang yang telah tersedia');
 
                 return back();
@@ -167,6 +194,20 @@ class ProductManageController extends Controller
     // Update Product
     public function updateProduct(Request $req)
     {
+        $req->validate([
+            "kode_barang" => "required",
+            "jenis_barang" => "required",
+            "nama_barang" => "required",
+            "berat_barang" => "required",
+            "satuan_berat" => "required",
+            "satuan_produk" => "required",
+            "stok" => "required",
+            "harga_ecer" => "required",
+            "harga_extra" => "required",
+            "harga_grosir" => "required",
+            "harga_khusus" => "required",
+        ]);
+
         $id_account = Auth::id();
         $check_access = Acces::where('user', $id_account)
             ->first();
@@ -182,9 +223,10 @@ class ProductManageController extends Controller
                 $product->nama_barang = $req->nama_barang;
                 $product->berat_barang = $req->berat_barang . ' ' . $req->satuan_berat;
                 $product->unit_id = $req->satuan_produk;
-                // $product->stok = $req->stok;
-                $product->harga = $req->harga;
-                $product->supplier_id = $req->supplier;
+                $product->harga_ecer = $req->harga_ecer;
+                $product->harga_extra = $req->harga_extra;
+                $product->harga_grosir = $req->harga_grosir;
+                $product->harga_khusus = $req->harga_khusus;
 
                 if ($req->stok <= 0) {
                     $product->keterangan = "Habis";

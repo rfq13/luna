@@ -188,9 +188,9 @@
 			              @foreach($dates_1 as $date)
 			              <li class="txt-light">{{ date('d M, Y', strtotime($date)) }}</li>
 			              @php
-			              $supplies = \App\Supply::whereDate('created_at', $date)
+			              $supply_products = \App\SupplyProduct::whereDate('created_at', $date)
 			              ->where('supplier_id', $worker->id)
-			              ->select('supplies.*')
+			              ->select('supply_products.*')
 			              ->latest()
 			              ->get();
 			              @endphp
@@ -203,7 +203,7 @@
 							    <th>Harga Beli</th>
 							    <th>Total</th>
 							  </tr>
-			                  @foreach($supplies as $supply)
+			                  @foreach($supply_products as $supply)
 			                  <tr>
 			                    <td class="td-1">
 			                      <span class="d-block font-weight-bold big-font">{{ $supply->nama_barang }}</span>
@@ -280,7 +280,7 @@
 			                          <td><span class="ammount-box-2 bg-secondary"><i class="mdi mdi-cube-outline"></i></span> {{ $product->jumlah }}</td>
 			                          <td>
 			                            <span class="light-td mb-1">Harga</span>
-			                            <span class="bold-td">Rp. {{ number_format($product->harga,2,',','.') }}</span>
+			                            <span class="bold-td">Rp. {{ number_format($product->harga_ecer,2,',','.') }}</span>
 			                          </td>
 			                          <td>
 			                            <span class="light-td mb-1">Total Barang</span>

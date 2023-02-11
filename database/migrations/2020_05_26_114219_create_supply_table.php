@@ -13,7 +13,7 @@ class CreateSupplyTable extends Migration
      */
     public function up()
     {
-        Schema::create('supplies', function (Blueprint $table) {
+        Schema::create('supply_products', function (Blueprint $table) {
             $table->id();
             $table->string('kode_barang');
             $table->string('nama_barang');
@@ -32,6 +32,6 @@ class CreateSupplyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('supplies');
+        Schema::dropIfExists('supply_products');
     }
 }

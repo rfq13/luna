@@ -2,8 +2,19 @@
 <li class="txt-light">{{ date('d M, Y', strtotime($date)) }}</li>
 @php
 $transactions = \App\Transaction::select('kode_transaksi')
-->whereDate('transactions.created_at', $date)
-->distinct()
+->whereDate('transactions.created_at', $date);
+
+
+
+if($req->is_kredit != 'all'){
+    $transactions->where('is_kredit', $req->is_kredit == 1 ? 1 : 0);
+}
+
+if($req->ppn != 'all'){
+    $transactions->where('ppn',($req->ppn == 1 ? '>' : '='), 0);
+}
+
+$transactions = $transactions->distinct()
 ->latest()
 ->get();
 @endphp
@@ -19,9 +30,7 @@ $transactions = \App\Transaction::select('kode_transaksi')
     @foreach($transactions as $transaction)
     <tr>
       @php
-      $transaksi = \App\Transaction::where('kode_transaksi', $transaction->kode_transaksi)
-      ->select('transactions.*')
-      ->first();
+      $transaksi = \App\Transaction::where('kode_transaksi', $transaction->kode_transaksi)->first();
       $products = \App\Transaction::where('kode_transaksi', $transaction->kode_transaksi)
       ->select('transactions.*')
       ->get();
@@ -61,7 +70,7 @@ $transactions = \App\Transaction::select('kode_transaksi')
             <td><span class="ammount-box-2 bg-secondary"><i class="mdi mdi-cube-outline"></i></span> {{ $product->jumlah }}</td>
             <td>
               <span class="light-td mb-1">Harga</span>
-              <span class="bold-td">Rp. {{ number_format($product->harga,2,',','.') }}</span>
+              <span class="bold-td">Rp. {{ number_format($product->harga_ecer,2,',','.') }}</span>
             </td>
             <td>
               <span class="light-td mb-1">Total Barang</span>

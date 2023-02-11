@@ -110,9 +110,9 @@
     height: 30px;
     line-height: 30px;
     text-align: center;
-    -moz-user-select: none; 
-    -webkit-user-select: none; 
-    -ms-user-select:none; 
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select:none;
     user-select:none;
     -o-user-select:none;
 }
@@ -165,6 +165,20 @@
 }
 
 .ubah-diskon-td:hover, .simpan-diskon-td:hover{
+    text-decoration: none;
+}
+
+.plfon-td{
+    display: block;
+    font-size: 16px !important;
+}
+
+.ubah-plafon-td, .simpan-plafon-td{
+    display: block;
+    font-size: 12px !important;
+}
+
+.ubah-plafon-td:hover, .simpan-plafon-td:hover{
     text-decoration: none;
 }
 

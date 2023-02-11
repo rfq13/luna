@@ -178,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\StockServiceProvider::class,
         App\Providers\UserServiceProvider::class,
+        App\Providers\GeneralHelperProvider::class,
         App\Providers\GeneralSettingServiceProvider::class,
     ],
 
@@ -235,6 +236,7 @@ return [
         'Stock' => App\Helpers\Stock::class,
         'UserHelp' => App\Helpers\User::class,
         'GS' => App\Helpers\GeneralSetting::class,
+        'GeneralHelper' => App\Helpers\GeneralHelper::class,
     ],
 
 ];

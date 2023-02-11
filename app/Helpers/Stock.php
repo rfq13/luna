@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Supply;
+use App\SupplyProduct;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ class Stock
     protected static $manipulateKeys = [];
     protected static $errors = [];
 
-    public static function reduceStock($product_id, $stokReduce,$transaction_id=null,$branch_id=0)
+    public static function reduceStock($product_id, $stokReduce, $transaction_id=null, $branch_id=0)
     {
         $cond = ['product_id' => $product_id, "processed" => 0,"branch_id"=>$branch_id];
         $current_stock = self::qty($product_id,$branch_id);
@@ -25,7 +25,7 @@ class Stock
                 $remainingReducingStok = $stokReduce;
 
                 do {
-                    $supply = Supply::where($cond)
+                    $supply = SupplyProduct::where($cond)
                         ->where("jumlah", ">", 0)
                         ->whereNotIn("id", $processed)
                         ->first();
@@ -37,7 +37,7 @@ class Stock
                     $supply->processed = 1;
                     $supply->save();
 
-                    $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn']);
+                    $newSupply = self::manipulateModel($supply, (new SupplyProduct), ['product_id', 'harga_beli', 'supply_id', 'total_harga_beli', 'ppn']);
                     $newSupply->jumlah = -$supply->jumlah;
                     $newSupply->branch_id = $supply->branch_id;
                     $newSupply->show_stock = 0;
@@ -46,7 +46,7 @@ class Stock
 
                     if ($reduce > 0) {
 
-                        $newSupply = self::manipulateModel($supply, (new Supply), ['product_id', 'harga_beli', 'supplier_id', 'ppn','transaction_id']);
+                        $newSupply = self::manipulateModel($supply, (new SupplyProduct), ['product_id', 'harga_beli', 'supply_id', 'total_harga_beli', 'ppn','transaction_id']);
                         $newSupply->jumlah = $reduce;
                         $newSupply->show_stock = 1;
                         $newSupply->transaction_id = $transaction_id;
@@ -59,7 +59,7 @@ class Stock
                 } while ($remainingReducingStok < 0);
 
                 self::$processed = $processed;
-                
+
             } catch (\Throwable $th) {
                 self::$errors = [
                     "message" => $th->getMessage(),
@@ -105,7 +105,7 @@ class Stock
 
     public static function qty($id,$branch_id=0)
     {
-        return DB::table("supplies")->select('jumlah')->where([
+        return DB::table("supply_products")->select('jumlah')->where([
             "product_id" => $id,
             "branch_id" => $branch_id,
         ])->sum("jumlah");
@@ -116,8 +116,8 @@ class Stock
         self::reduceStock($product_id,$qty,null,$from);
 
         foreach (self::$processed as $key => $supply) {
-            $newSupply = self::manipulateModel($supply['supply'], (new Supply), [],['id','processed']);
-            
+            $newSupply = self::manipulateModel($supply['supply'], (new SupplyProduct), [],['id','processed']);
+
             $newSupply->jumlah = $supply['jumlah'];
             $newSupply->branch_id = $to;
             $newSupply->show_stock = 0;
